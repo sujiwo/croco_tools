@@ -1,4 +1,4 @@
-classdef ncatt
+classdef ncatt < handle
     properties
         ncid
         varId
@@ -24,6 +24,9 @@ classdef ncatt
 
         function delete(self)
             netcdf.delAtt(self.ncid, self.varId, self.name);
+        end
+
+        function subsasgn(self, st, val)
         end
 
 %        function disp(self)

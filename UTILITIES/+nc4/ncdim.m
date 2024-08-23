@@ -1,4 +1,4 @@
-classdef ncdim
+classdef ncdim < handle
     properties
         ncid
         dim_id

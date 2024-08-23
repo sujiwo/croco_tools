@@ -1,4 +1,4 @@
-classdef netcdf
+classdef netcdf < handle
 
   properties
     id = -1;
@@ -16,7 +16,7 @@ classdef netcdf
       if (isa(pth, 'nc4.netcdf'))
         o.id = pth;
         o.filename = pth.filename;
-      elseif (ischar(pth))
+      elseif (ischar(pth) || isstring(pth))
         o.id = netcdf.open(pth, mode);
         o.filename = pth;
       end
@@ -54,7 +54,7 @@ classdef netcdf
 
     function ret = var(self, varName)
       varId = netcdf.inqVarID(self.id, varName);
-      ret = nc4.ncvar(self.id, varId);
+                                  ret = nc4.ncvar(self.id, varId);
       %ret = netcdf.getVar(self.id, varId);
     end
 
@@ -76,6 +76,13 @@ classdef netcdf
 
     function vr = createVariable(self, name, ntype)
       vr = nc4.ncvar.create(self.id, name, ntype);
+    end
+
+    function at = createAttribute(self, name, val)
+        at = nc4.ncatt.create(self.id, name);
+      if nargin==3
+        at.set(val);
+      end
     end
 
   end

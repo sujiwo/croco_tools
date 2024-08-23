@@ -1,4 +1,4 @@
-classdef ncvar
+classdef ncvar < handle
 
   properties
     ncid
@@ -37,13 +37,28 @@ classdef ncvar
     end
 
     function s = set(self, val)
-        s = 1;
+      if (isscalar(val) && self.size()~=1)
+        val2 = zeros(self.size());
+        val2(:) = val;
+        val = val2;
+      end
+      netcdf.putVar(self.ncid, self.varId, val);
+      s = self;
+    end
+
+    function sz = size(self)
+      sz = zeros(1, length(self.dimIds));
+      dms = self.dimensions();
+      for i = 1:length(dms)
+        sz(i) = dms{i}.len;
+      end
+      sz = flip(sz);
     end
 
     function dms = dimensions(self)
-        dms = []
+        dms = cell(1, length(self.dimIds));
         for i=1:length(self.dimIds)
-          dms(i) = nc4.ncdim(self.ncid, self.dimIds(i))
+          dms{i} = nc4.ncdim(self.ncid, self.dimIds(i));
         end
     end
 
