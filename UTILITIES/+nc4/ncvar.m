@@ -7,25 +7,33 @@ classdef ncvar
     xtype
     dimIds
     numAttrs
+    name
+    dimNames = {}
   end
 
   methods
     function s = ncvar(ncId, varId)
        s.ncid = ncId;
        s.varId = varId;
-       [vname, s.xtype, s.dimIds, s.numAttrs] = netcdf.inqVar(ncId, varId);
+       [s.name, s.xtype, s.dimIds, s.numAttrs] = netcdf.inqVar(ncId, varId);
 
        for i=0:s.numAttrs-1
          s.attributes{i+1} = netcdf.inqAttName(s.ncid, s.varId, i);
        end
+       for i=1:length(s.dimIds)
+         [s.dimNames{i}, dlen] = netcdf.inqDim(s.ncid, s.dimIds(i));
+       end
     end
 
     function ct = val(self)
-       ct = netcdf.getVar(self.ncid, self.varId);
-       %ct = pagetranspose(ct);
-       l = length(self.dimIds);
-       order = linspace(l, 1, l);
-       ct = permute(ct, order);
+      ct = self.get();
+    end
+
+    function ct = get(self)
+      ct = netcdf.getVar(self.ncid, self.varId);
+      l = length(self.dimIds);
+      order = linspace(l, 1, l);
+      ct = permute(ct, order);
     end
 
     function s = set(self, val)
@@ -33,8 +41,9 @@ classdef ncvar
     end
 
     function dms = dimensions(self)
+        dms = []
         for i=1:length(self.dimIds)
-          
+          dms(i) = nc4.ncdim(self.ncid, self.dimIds(i))
         end
     end
 
@@ -42,15 +51,27 @@ classdef ncvar
        a = nc4.ncatt(self.ncid, self.varId, attrName);
     end
 
+    function a = createAttribute(self, attrName, val)
+% Create and (optionally) set an attribute
+      a = nc4.ncatt.create(self.ncid, attrName, self.varId);
+      if nargin==3
+        a.set(val);
+      end
+    end
+
   end
 
   methods (Static)
+% Usage example:
+% nc4.ncvar.create(26, 'name', ncdouble('time', 'lat', 'lon'));
+%
       function nvar = create(ncid, name, ntype)
-          arguments
-              ncid int32
-              name string
-              ntype netcdf4.nctype
-          end
+% doesn't work in Octave
+%          arguments
+%              ncid int32
+%              name string
+%              ntype nc4.nctype
+%          end
 
           ndim = length(ntype.dimensions);
           dimids = zeros(1,ndim);

@@ -13,8 +13,8 @@ classdef ncdim
             [s.name, s.len] = netcdf.inqDim(ncid, dim_id);
         end
 
-        function sz = size(self)
-
+        function sz = length(self)
+            sz = self.len;
         end
     end
 

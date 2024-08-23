@@ -1,4 +1,4 @@
-classdef ncint < netcdf4.nctype
+classdef ncint < nc4.nctype
     methods
         function self = ncint(varargin)
             self@nc4.nctype('NC_INT', varargin);

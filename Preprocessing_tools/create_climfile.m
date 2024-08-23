@@ -67,12 +67,12 @@ disp([' VTRANSFORM = ',num2str(vtransform)])
 %
 %  Read the grid file
 %
-nc = netcdf(grdname, 'nowrite');
-h=nc{'h'}(:);
-maskr=nc{'mask_rho'}(:);
-Lp=length(nc('xi_rho'));
-Mp=length(nc('eta_rho'));
-close(nc);
+nc = nc4.netcdf(grdname, 'nowrite');
+h=nc.var('h').get;
+maskr=nc.var('mask_rho').get();
+Lp=length(nc.dim('xi_rho'));
+Mp=length(nc.dim('eta_rho'));
+nc.close();
 hmin=min(min(h(maskr==1)));
 if vtransform ==1;
   if hc > hmin
@@ -87,68 +87,69 @@ Np=N+1;
 %
 type = 'CLIMATOLOGY file' ; 
 history = 'CROCO' ;
-nc = netcdf(clmname,clobber);
-% result = redef(nc);
+nc = nc4.netcdf.create(clmname);
+nc.redef();
 %
 %  Create dimensions
 %
-nc('xi_u') = L;
-nc('xi_v') = Lp;
-nc('xi_rho') = Lp;
-nc('eta_u') = Mp;
-nc('eta_v') = M;
-nc('eta_rho') = Mp;
-nc('s_rho') = N;
-nc('s_w') = Np;
-nc('tracer') = 2;
-nc('tclm_time') = length(time);
-nc('temp_time') = length(time);
-nc('sclm_time') = length(time);
-nc('salt_time') = length(time);
-nc('uclm_time') = length(time);
-nc('vclm_time') = length(time);
-nc('v2d_time')  = length(time);
-nc('v3d_time')  = length(time);
-nc('ssh_time')  = length(time);
-nc('zeta_time') = length(time);
-nc('one') = 1;
+nc.createDimension('xi_u', L);
+nc.createDimension('xi_v', Lp);
+nc.createDimension('xi_rho', Lp);
+nc.createDimension('eta_u', Mp);
+nc.createDimension('eta_v', M);
+nc.createDimension('eta_rho', Mp);
+nc.createDimension('s_rho', N);
+nc.createDimension('s_w', Np);
+nc.createDimension('tracer', 2);
+nc.createDimension('tclm_time', length(time));
+nc.createDimension('temp_time', length(time));
+nc.createDimension('sclm_time', length(time));
+nc.createDimension('salt_time', length(time));
+nc.createDimension('uclm_time', length(time));
+nc.createDimension('vclm_time', length(time));
+nc.createDimension('v2d_time', length(time));
+nc.createDimension('v3d_time', length(time));
+nc.createDimension('ssh_time', length(time));
+nc.createDimension('zeta_time', length(time));
+nc.createDimension('one', 1);
 %
 %  Create variables
 %
-nc{'spherical'} = ncchar('one') ;
-nc{'Vtransform'} = ncint('one') ;
-nc{'Vstretching'} = ncint('one') ;
-nc{'tstart'} = ncdouble('one') ;
-nc{'tend'} = ncdouble('one') ;
-nc{'theta_s'} = ncdouble('one') ;
-nc{'theta_b'} = ncdouble('one') ;
-nc{'Tcline'} = ncdouble('one') ;
-nc{'hc'} = ncdouble('one') ;
-nc{'s_rho'} = ncdouble('s_rho') ;
-nc{'s_w'} = ncdouble('s_w') ;
-nc{'Cs_rho'} = ncdouble('s_rho') ;
-nc{'Cs_w'} = ncdouble('s_w') ;
-nc{'tclm_time'} = ncdouble('tclm_time') ;
-nc{'temp_time'} = ncdouble('temp_time') ;
-nc{'sclm_time'} = ncdouble('sclm_time') ;
-nc{'salt_time'} = ncdouble('salt_time') ;
-nc{'uclm_time'} = ncdouble('uclm_time') ;
-nc{'vclm_time'} = ncdouble('vclm_time') ;
-nc{'v2d_time'} = ncdouble('v2d_time') ;
-nc{'v3d_time'} = ncdouble('v3d_time') ;
-nc{'ssh_time'} = ncdouble('ssh_time') ;
-nc{'zeta_time'} = ncdouble('zeta_time') ;
-nc{'temp'} = ncdouble('tclm_time','s_rho','eta_rho','xi_rho') ;
-nc{'salt'} = ncdouble('sclm_time','s_rho','eta_rho','xi_rho') ;
-nc{'u'} = ncdouble('uclm_time','s_rho','eta_u','xi_u') ;
-nc{'v'} = ncdouble('vclm_time','s_rho','eta_v','xi_v') ;
-nc{'ubar'} = ncdouble('uclm_time','eta_u','xi_u') ;
-nc{'vbar'} = ncdouble('vclm_time','eta_v','xi_v') ;
-nc{'SSH'} = ncdouble('ssh_time','eta_rho','xi_rho') ;
-nc{'zeta'} = ncdouble('zeta_time','eta_rho','xi_rho') ;
+nc.createVariable('spherical', nc4.ncchar('one'));
+nc.createVariable('Vtransform', nc4.ncint('one'));
+nc.createVariable('Vstretching', nc4.ncint('one'));
+nc.createVariable('tstart', nc4.ncdouble('one'));
+nc.createVariable('tend', nc4.ncdouble('one'));
+nc.createVariable('theta_s', nc4.ncdouble('one'));
+nc.createVariable('theta_b', nc4.ncdouble('one'));
+nc.createVariable('Tcline', nc4.ncdouble('one'));
+nc.createVariable('hc', nc4.ncdouble('one'));
+nc.createVariable('s_rho', nc4.ncdouble('s_rho'));
+nc.createVariable('s_w', nc4.ncdouble('s_w'));
+nc.createVariable('Cs_rho', nc4.ncdouble('s_rho'));
+nc.createVariable('Cs_w', nc4.ncdouble('s_w'));
+nc.createVariable('tclm_time', nc4.ncdouble('tclm_time'));
+nc.createVariable('temp_time', nc4.ncdouble('temp_time'));
+nc.createVariable('sclm_time', nc4.ncdouble('sclm_time'));
+nc.createVariable('salt_time', nc4.ncdouble('salt_time'));
+nc.createVariable('uclm_time', nc4.ncdouble('uclm_time'));
+nc.createVariable('vclm_time', nc4.ncdouble('vclm_time'));
+nc.createVariable('v2d_time', nc4.ncdouble('v2d_time'));
+nc.createVariable('v3d_time', nc4.ncdouble('v3d_time'));
+nc.createVariable('ssh_time', nc4.ncdouble('ssh_time'));
+nc.createVariable('zeta_time', nc4.ncdouble('zeta_time'));
+nc.createVariable('temp', nc4.ncdouble('tclm_time','s_rho','eta_rho','xi_rho'));
+nc.createVariable('salt', nc4.ncdouble('sclm_time','s_rho','eta_rho','xi_rho'));
+nc.createVariable('u', nc4.ncdouble('uclm_time','s_rho','eta_u','xi_u'));
+nc.createVariable('v', nc4.ncdouble('vclm_time','s_rho','eta_v','xi_v'));
+nc.createVariable('ubar', nc4.ncdouble('uclm_time','eta_u','xi_u'));
+nc.createVariable('vbar', nc4.ncdouble('vclm_time','eta_v','xi_v'));
+nc.createVariable('SSH', nc4.ncdouble('ssh_time','eta_rho','xi_rho'));
+nc.createVariable('zeta', nc4.ncdouble('zeta_time','eta_rho','xi_rho'));
 %
 %  Create attributes
 %
+nc.var('Vtransform').createAttribute('long_name', 'vertical terrain-following transformation equation');
 nc{'Vtransform'}.long_name = ncchar('vertical terrain-following transformation equation');
 nc{'Vtransform'}.long_name = 'vertical terrain-following transformation equation';
 %
@@ -166,7 +167,7 @@ nc{'tstart'}.long_name = ncchar('start processing day');
 nc{'tstart'}.long_name = 'start processing day';
 nc{'tstart'}.units = ncchar('day');
 nc{'tstart'}.units = 'day';
-%
+%                   
 nc{'tend'}.long_name = ncchar('end processing day');
 nc{'tend'}.long_name = 'end processing day';
 nc{'tend'}.units = ncchar('day');

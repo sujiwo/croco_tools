@@ -20,7 +20,7 @@ classdef netcdf
         o.id = netcdf.open(pth, mode);
         o.filename = pth;
       end
-      % Dimensions
+      % Dimensions & Variables
       o.finfo = ncinfo(pth);
       ndims = size(o.finfo.Dimensions(:));
       nvars = size(o.finfo.Variables(:));
@@ -29,7 +29,7 @@ classdef netcdf
       for i=1:o.ndims
         o.dims{i} = o.finfo.Dimensions(i).Name;
       end
-      for i=1:o.ndims
+      for i=1:o.nvars
         o.vars{i} = o.finfo.Variables(i).Name;
       end
     end
@@ -66,8 +66,16 @@ classdef netcdf
         netcdf.endDef(self.id);
     end
 
-    function a = attribute(self, name)
+    function a = att(self, name)
         a = nc4.ncatt(self.id, netcdf.getConstant("NC_GLOBAL"), name);
+    end
+
+    function dm = createDimension(self, name, length)
+      dm = nc4.ncdim.create(self.id, name, length);
+    end
+
+    function vr = createVariable(self, name, ntype)
+      vr = nc4.ncvar.create(self.id, name, ntype);
     end
 
   end
@@ -77,7 +85,7 @@ classdef netcdf
           if nargin==1
               permission=netcdf.getConstant('CLOBBER');
           end
-          permission = bitand(permission, netcdf.getConstant('NETCDF4'));
+          permission = bitor(permission, netcdf.getConstant('NETCDF4'));
           id = netcdf.create(path, permission);
           netcdf.close(id);
           fileobj = nc4.netcdf(path, 'write');
