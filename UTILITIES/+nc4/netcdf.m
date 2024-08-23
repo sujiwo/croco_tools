@@ -54,8 +54,7 @@ classdef netcdf < handle
 
     function ret = var(self, varName)
       varId = netcdf.inqVarID(self.id, varName);
-                                  ret = nc4.ncvar(self.id, varId);
-      %ret = netcdf.getVar(self.id, varId);
+      ret = nc4.ncvar(self.id, varId);
     end
 
     function redef(self)

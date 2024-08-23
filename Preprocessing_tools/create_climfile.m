@@ -112,7 +112,7 @@ nc.createDimension('v3d_time', length(time));
 nc.createDimension('ssh_time', length(time));
 nc.createDimension('zeta_time', length(time));
 nc.createDimension('one', 1);
-%
+    %
 %  Create variables
 %
 nc.createVariable('spherical', nc4.ncchar('one'));

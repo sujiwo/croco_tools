@@ -37,8 +37,8 @@ classdef ncvar < handle
     end
 
     function s = set(self, val)
-      if (isscalar(val) && self.size()~=1)
-        val2 = zeros(self.size());
+      if (isscalar(val) && prod(self.size())~=1)
+        val2 = zeros(self.size(), nc4.nctype.matlab_type(self.xtype));
         val2(:) = val;
         val = val2;
       end
