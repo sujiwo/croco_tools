@@ -33,10 +33,12 @@ classdef ncvar < nc4.ncobject
     function ct = get(self)
       ct = netcdf.getVar(self.ncid, self.varId);
       l = length(self.dimIds);
+      if l==1, return, end
       order = linspace(l, 1, l);
       ct = permute(ct, order);
     end
 
+%     XXX: Handle multi-dimensional arrays
     function s = set(self, val)
       if (isscalar(val) && prod(self.size())~=1)
         val2 = zeros(self.size(), nc4.nctype.matlab_type(self.xtype));
