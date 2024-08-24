@@ -1,4 +1,4 @@
-function data=ext_data_OGCM(nc,X,Y,vname,tndx,lon,lat,k,Roa,interp_method)
+function data=ext_data_OGCM(                                    ,X,Y,vname,tndx,lon,lat,k,Roa,interp_method)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Extrapole one horizontal ECCO (or Data) slice on a CROCO grid

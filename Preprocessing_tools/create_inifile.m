@@ -62,10 +62,10 @@ disp([' VTRANSFORM = ',num2str(vtransform)])
 %
 %  Read the grid file
 %
-nc=netcdf(gridfile,'r');
-h=nc{'h'}(:);  
-mask=nc{'mask_rho'}(:);
-close(nc);
+nc=nc4.netcdf(gridfile);
+h=nc.var('h').get();
+mask=nc.var('mask_rho').get();
+nc.close();
 hmin=min(min(h(mask==1)));
 if vtransform ==1;
     if hc > hmin
@@ -86,152 +86,110 @@ nc = netcdf(inifile,clobber);
 %
 %  Create dimensions
 %
-nc('xi_u') = L;
-nc('xi_v') = Lp;
-nc('xi_rho') = Lp;
-nc('eta_u') = Mp;
-nc('eta_v') = M;
-nc('eta_rho') = Mp;
-nc('s_rho') = N;
-nc('s_w') = Np;
-nc('tracer') = 2;
-nc('time') = 0;
-nc('one') = 1;
+nc.createDimension('xi_u', L);
+nc.createDimension('xi_v', Lp);
+nc.createDimension('xi_rho', Lp);
+nc.createDimension('eta_u', Mp);
+nc.createDimension('eta_v', M);
+nc.createDimension('eta_rho', Mp);
+nc.createDimension('s_rho', N);
+nc.createDimension('s_w', Np);
+nc.createDimension('tracer', 2);
+nc.createDimension('time', 0);
+nc.createDimension('one', 1);
 %
 %  Create variables
 %
-nc{'spherical'} = ncchar('one') ;
-nc{'Vtransform'} = ncint('one') ;
-nc{'Vstretching'} = ncint('one') ;
-nc{'tstart'} = ncdouble('one') ;
-nc{'tend'} = ncdouble('one') ;
-nc{'theta_s'} = ncdouble('one') ;
-nc{'theta_b'} = ncdouble('one') ;
-nc{'Tcline'} = ncdouble('one') ;
-nc{'hc'} = ncdouble('one') ;
-nc{'s_rho'} = ncdouble('s_rho') ;
-nc{'Cs_rho'} = ncdouble('s_rho') ;
-nc{'ocean_time'} = ncdouble('time') ;
-nc{'scrum_time'} = ncdouble('time') ;
-nc{'u'} = ncdouble('time','s_rho','eta_u','xi_u') ;
-nc{'v'} = ncdouble('time','s_rho','eta_v','xi_v') ;
-nc{'ubar'} = ncdouble('time','eta_u','xi_u') ;
-nc{'vbar'} = ncdouble('time','eta_v','xi_v') ;
-nc{'zeta'} = ncdouble('time','eta_rho','xi_rho') ;
-nc{'temp'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
-nc{'salt'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+nc.createVariable('spherical', nc4.ncchar('one') );
+nc.createVariable('Vtransform', nc4.ncint('one') );
+nc.createVariable('Vstretching', nc4.ncint('one') );
+nc.createVariable('tstart', nc4.ncdouble('one') );
+nc.createVariable('tend', nc4.ncdouble('one') );
+nc.createVariable('theta_s', nc4.ncdouble('one') );
+nc.createVariable('theta_b', nc4.ncdouble('one') );
+nc.createVariable('Tcline', nc4.ncdouble('one') );
+nc.createVariable('hc', nc4.ncdouble('one') );
+nc.createVariable('s_rho', nc4.ncdouble('s_rho') );
+nc.createVariable('Cs_rho', nc4.ncdouble('s_rho') );
+nc.createVariable('ocean_time', nc4.ncdouble('time') );
+nc.createVariable('scrum_time', nc4.ncdouble('time') );
+nc.createVariable('u', nc4.ncdouble('time','s_rho','eta_u','xi_u') );
+nc.createVariable('v', nc4.ncdouble('time','s_rho','eta_v','xi_v') );
+nc.createVariable('ubar', nc4.ncdouble('time','eta_u','xi_u') );
+nc.createVariable('vbar', nc4.ncdouble('time','eta_v','xi_v') );
+nc.createVariable('zeta', nc4.ncdouble('time','eta_rho','xi_rho') );
+nc.createVariable('temp', nc4.ncdouble('time','s_rho','eta_rho','xi_rho') );
+nc.createVariable('salt', nc4.ncdouble('time','s_rho','eta_rho','xi_rho') );
 %
 %  Create attributes
 %
-nc{'Vtransform'}.long_name = ncchar('vertical terrain-following transformation equation');
-nc{'Vtransform'}.long_name = 'vertical terrain-following transformation equation';
+nc.var('Vtransform').createAttribute('long_name', 'vertical terrain-following transformation equation');
 %
-nc{'Vstretching'}.long_name = ncchar('vertical terrain-following stretching function');
-nc{'Vstretching'}.long_name = 'vertical terrain-following stretching function';
+nc.var('Vstretching').createAttribute('long_name', 'vertical terrain-following stretching function');
 %
-nc{'tstart'}.long_name = ncchar('start processing day');
-nc{'tstart'}.long_name = 'start processing day';
-nc{'tstart'}.units = ncchar('day');
-nc{'tstart'}.units = 'day';
+nc.var('tstart').createAttribute('long_name', 'start processing day');
+nc.var('tstart').createAttribute('units', 'day');
 %
-nc{'tend'}.long_name = ncchar('end processing day');
-nc{'tend'}.long_name = 'end processing day';
-nc{'tend'}.units = ncchar('day');
-nc{'tend'}.units = 'day';
+nc.var('tend').createAttribute('long_name', 'end processing day');
+nc.var('tend').createAttribute('units', 'day');
 %
-nc{'theta_s'}.long_name = ncchar('S-coordinate surface control parameter');
-nc{'theta_s'}.long_name = 'S-coordinate surface control parameter';
-nc{'theta_s'}.units = ncchar('nondimensional');
-nc{'theta_s'}.units = 'nondimensional';
+nc.var('theta_s').createAttribute('long_name', 'S-coordinate surface control parameter');
+nc.var('theta_s').createAttribute('units', 'nondimensional');
 %
-nc{'theta_b'}.long_name = ncchar('S-coordinate bottom control parameter');
-nc{'theta_b'}.long_name = 'S-coordinate bottom control parameter';
-nc{'theta_b'}.units = ncchar('nondimensional');
-nc{'theta_b'}.units = 'nondimensional';
+nc.var('theta_b').createAttribute('long_name', 'S-coordinate bottom control parameter');
+nc.var('theta_b').createAttribute('units', 'nondimensional');
 %
-nc{'Tcline'}.long_name = ncchar('S-coordinate surface/bottom layer width');
-nc{'Tcline'}.long_name = 'S-coordinate surface/bottom layer width';
-nc{'Tcline'}.units = ncchar('meter');
-nc{'Tcline'}.units = 'meter';
+nc.var('Tcline').createAttribute('long_name', 'S-coordinate surface/bottom layer width');
+nc.var('Tcline').createAttribute('units', 'meter');
 %
-nc{'hc'}.long_name = ncchar('S-coordinate parameter, critical depth');
-nc{'hc'}.long_name = 'S-coordinate parameter, critical depth';
-nc{'hc'}.units = ncchar('meter');
-nc{'hc'}.units = 'meter';
+nc.var('hc').createAttribute('long_name', 'S-coordinate parameter, critical depth');
+nc.var('hc').createAttribute('units', 'meter');
 %
-nc{'s_rho'}.long_name = ncchar('S-coordinate at RHO-points');
-nc{'s_rho'}.long_name = 'S-coordinate at RHO-points';
-nc{'s_rho'}.units = ncchar('nondimensional');
-nc{'s_rho'}.units = 'nondimensional';
-nc{'s_rho'}.valid_min = -1;
-nc{'s_rho'}.valid_max = 0;
+nc.var('s_rho').createAttribute('long_name', 'S-coordinate at RHO-points');
+nc.var('s_rho').createAttribute('units', 'nondimensional');
+nc.var('s_rho').createAttribute('valid_min', -1);
+nc.var('s_rho').createAttribute('valid_max', 0);
 %
-nc{'Cs_rho'}.long_name = ncchar('S-coordinate stretching curves at RHO-points');
-nc{'Cs_rho'}.long_name = 'S-coordinate stretching curves at RHO-points';
-nc{'Cs_rho'}.units = ncchar('nondimensional');
-nc{'Cs_rho'}.units = 'nondimensional';
-nc{'Cs_rho'}.valid_min = -1;
-nc{'Cs_rho'}.valid_max = 0;
+nc.var('Cs_rho').createAttribute('long_name', 'S-coordinate stretching curves at RHO-points');
+nc.var('Cs_rho').createAttribute('units', 'nondimensional');
+nc.var('Cs_rho').createAttribute('valid_min', -1);
+nc.var('Cs_rho').createAttribute('valid_max', 0);
 %
-nc{'ocean_time'}.long_name = ncchar('time since initialization');
-nc{'ocean_time'}.long_name = 'time since initialization';
-nc{'ocean_time'}.units = ncchar('second');
-nc{'ocean_time'}.units = 'second';
+nc.var('ocean_time').createAttribute('long_name', 'time since initialization');
+nc.var('ocean_time').createAttribute('units', 'second');
 %
-nc{'scrum_time'}.long_name = ncchar('time since initialization');
-nc{'scrum_time'}.long_name = 'time since initialization';
-nc{'scrum_time'}.units = ncchar('second');
-nc{'scrum_time'}.units = 'second';
+nc.var('scrum_time').createAttribute('long_name', 'time since initialization');
+nc.var('scrum_time').createAttribute('units', 'second');
 %
-nc{'u'}.long_name = ncchar('u-momentum component');
-nc{'u'}.long_name = 'u-momentum component';
-nc{'u'}.units = ncchar('meter second-1');
-nc{'u'}.units = 'meter second-1';
+nc.var('u').createAttribute('long_name', 'u-momentum component');
+nc.var('u').createAttribute('units', 'meter second-1');
 %
-nc{'v'}.long_name = ncchar('v-momentum component');
-nc{'v'}.long_name = 'v-momentum component';
-nc{'v'}.units = ncchar('meter second-1');
-nc{'v'}.units = 'meter second-1';
+nc.var('v').createAttribute('long_name', 'v-momentum component');
+nc.var('v').createAttribute('units', 'meter second-1');
 %
-nc{'ubar'}.long_name = ncchar('vertically integrated u-momentum component');
-nc{'ubar'}.long_name = 'vertically integrated u-momentum component';
-nc{'ubar'}.units = ncchar('meter second-1');
-nc{'ubar'}.units = 'meter second-1';
+nc.var('ubar').createAttribute('long_name', 'vertically integrated u-momentum component');
+nc.var('ubar').createAttribute('units', 'meter second-1');
 %
-nc{'vbar'}.long_name = ncchar('vertically integrated v-momentum component');
-nc{'vbar'}.long_name = 'vertically integrated v-momentum component';
-nc{'vbar'}.units = ncchar('meter second-1');
-nc{'vbar'}.units = 'meter second-1';
+nc.var('vbar').createAttribute('long_name', 'vertically integrated v-momentum component');
+nc.var('vbar').createAttribute('units', 'meter second-1');
 %
-nc{'zeta'}.long_name = ncchar('free-surface');
-nc{'zeta'}.long_name = 'free-surface';
-nc{'zeta'}.units = ncchar('meter');
-nc{'zeta'}.units = 'meter';
+nc.var('zeta').createAttribute('long_name', 'free-surface');
+nc.var('zeta').createAttribute('units', 'meter');
 %
-nc{'temp'}.long_name = ncchar('potential temperature');
-nc{'temp'}.long_name = 'potential temperature';
-nc{'temp'}.units = ncchar('Celsius');
-nc{'temp'}.units = 'Celsius';
+nc.var('temp').createAttribute('long_name', 'potential temperature');
+nc.var('temp').createAttribute('units', 'Celsius');
 %
-nc{'salt'}.long_name = ncchar('salinity');
-nc{'salt'}.long_name = 'salinity';
-nc{'salt'}.units = ncchar('PSU');
-nc{'salt'}.units = 'PSU';
+nc.var('salt').createAttribute('long_name', 'salinity');
+nc.var('salt').createAttribute('units', 'PSU');
 %
 % Create global attributes
 %
-nc.title = ncchar(title);
-nc.title = title;
-nc.date = ncchar(date);
-nc.date = date;
-nc.clim_file = ncchar(inifile);
-nc.clim_file = inifile;
-nc.grd_file = ncchar(gridfile);
-nc.grd_file = gridfile;
-nc.type = ncchar(type);
-nc.type = type;
-nc.history = ncchar(history);
-nc.history = history;
+nc.createAttribute('title', title);
+nc.createAttribute('date', date);
+nc.createAttribute('clim_file', inifile);
+nc.createAttribute('grd_file', gridfile);
+nc.createAttribute('type', type);
+nc.createAttribute('history', history);
 %
 % Leave define mode
 %
@@ -244,30 +202,30 @@ nc.history = history;
 %
 % Write variables
 %
-nc{'spherical'}(:)='T';
-nc{'Vtransform'}(:)=vtransform;
-nc{'Vstretching'}(:)=1;
-nc{'tstart'}(:) =  time; 
-nc{'tend'}(:) =  time; 
-nc{'theta_s'}(:) =  theta_s; 
-nc{'theta_b'}(:) =  theta_b; 
-nc{'Tcline'}(:) =  hc; 
-nc{'hc'}(:) =  hc; 
-nc{'s_rho'}(:) =  s_rho; 
-nc{'Cs_rho'}(:) =  Cs_rho; 
-nc{'scrum_time'}(1) =  time*24*3600; 
-nc{'ocean_time'}(1) =  time*24*3600; 
-nc{'u'}(:) =  0; 
-nc{'v'}(:) =  0; 
-nc{'zeta'}(:) =  0; 
-nc{'ubar'}(:) =  0; 
-nc{'vbar'}(:) =  0; 
-nc{'temp'}(:) =  0; 
-nc{'salt'}(:) =  0; 
+nc.var('spherical').set('T');
+nc.var('Vtransform').set(vtransform);
+nc.var('Vstretching').set(1);
+nc.var('tstart').set(time);
+nc.var('tend').set(time);
+nc.var('theta_s').set(theta_s);
+nc.var('theta_b').set(theta_b);
+nc.var('Tcline').set(hc);
+nc.var('hc').set(hc);
+nc.var('s_rho').set(s_rho);
+nc.var('Cs_rho').set(Cs_rho);
+nc.var('scrum_time').set(time*24*3600);
+nc.var('ocean_time').set(time*24*3600);
+nc.var('u').set(0);
+nc.var('v').set(0);
+nc.var('zeta').set(0);
+nc.var('ubar').set(0);
+nc.var('vbar').set(0);
+nc.var('temp').set(0);
+nc.var('salt').set(0);
 %
 % Synchronize on disk
 %
-close(nc);
+nc.close();
 return
 
 

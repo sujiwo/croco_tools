@@ -1,4 +1,4 @@
-classdef ncatt < handle
+classdef ncatt < nc4.ncobject
     properties
         ncid
         varId
@@ -8,6 +8,7 @@ classdef ncatt < handle
 
     methods
         function s = ncatt(ncId, varId, name)
+            s@nc4.ncobject();
             s.ncid = ncId;
             s.varId = varId;
             s.attrId = netcdf.inqAttID(ncId, varId, name);

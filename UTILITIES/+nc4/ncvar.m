@@ -1,4 +1,4 @@
-classdef ncvar < handle
+classdef ncvar < nc4.ncobject
 
   properties
     ncid
@@ -13,6 +13,7 @@ classdef ncvar < handle
 
   methods
     function s = ncvar(ncId, varId)
+       s@nc4.ncobject();
        s.ncid = ncId;
        s.varId = varId;
        [s.name, s.xtype, s.dimIds, s.numAttrs] = netcdf.inqVar(ncId, varId);

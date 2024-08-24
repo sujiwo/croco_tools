@@ -1,4 +1,4 @@
-classdef ncdim < handle
+classdef ncdim < nc4.ncobject
     properties
         ncid
         dim_id
@@ -8,6 +8,7 @@ classdef ncdim < handle
 
     methods
         function s = ncdim(ncid, dim_id)
+            s@nc4.ncobject();
             s.ncid = ncid;
             s.dim_id = dim_id;
             [s.name, s.len] = netcdf.inqDim(ncid, dim_id);

@@ -1,4 +1,4 @@
-classdef netcdf < handle
+classdef netcdf < nc4.ncobject
 
   properties
     id = -1;
@@ -10,6 +10,7 @@ classdef netcdf < handle
   methods
 
     function o = netcdf(pth, mode)
+      o@nc4.ncobject();
       if (nargin==1)
         mode = 'NOWRITE';
       end
