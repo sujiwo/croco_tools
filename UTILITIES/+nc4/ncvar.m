@@ -8,6 +8,7 @@ classdef ncvar < nc4.ncobject
     dimIds
     numAttrs
     name
+    myOrientation
     dimNames = {}
   end
 
@@ -30,7 +31,22 @@ classdef ncvar < nc4.ncobject
       ct = self.get();
     end
 
-    function ct = get(self)
+    function o = orient(self, theOrientation)
+      if nargin > 1
+        if isempty(theOrientation)
+          theOrientation = 1:length(self.size());
+        end
+        self.myOrientation = theOrientation;
+        o = self;
+      else
+        o = self.myOrientation;
+        if isempty(o)
+          o = 1:length(self.size());
+        end
+      end
+    end
+
+    function ct = getAll(self)
       ct = netcdf.getVar(self.ncid, self.varId);
       l = length(self.dimIds);
       if l==1, return, end
@@ -38,12 +54,84 @@ classdef ncvar < nc4.ncobject
       ct = permute(ct, order);
     end
 
+    function result = get(self, varargin)
+      indices = varargin;
+      theSize = self.size();
+      for i = 1:length(indices)
+          if isnumeric(indices{i})
+              if any(diff(diff(indices{i})))
+                  disp(' ## Indexing strides must be positive and constant.')
+                  return
+              end
+          end
+      end
+
+      % Flip and permute indices before proceeding,
+      %  since we are using virtual indexing.
+
+      theOrientation = self.orient();
+      if any(theOrientation < 0) | any(diff(theOrientation) ~= 1)
+        for i = 1:length(theOrientation)
+            if theOrientation(i) < 0
+                if isa(indices{i}, 'double')   % Slide the indices.
+                    indices{i} = fliplr(theSize(i) + 1 - indices{i});
+                end
+            end
+        end
+        indices(abs(theOrientation)) = indices;
+        theSize(abs(theOrientation)) = theSize;
+      end
+
+      if prod(theSize) > 0
+        if isempty(theSize)
+            start = 0;
+        else
+            start = zeros(1, length(theSize));
+        end
+
+        count = ones(1, length(theSize));
+        stride = ones(1, length(theSize));
+        for i = 1:min(length(indices), length(theSize))
+            k = indices{i};
+            if ~isstr(k) & ~strcmp(k, ':') & ~strcmp(k, '-')
+                start(i) = k(1)-1;
+                count(i) =  length(k);
+                d = 0;
+                if length(k) > 1, d = diff(k); end
+                stride(i) = max(d(1), 1);
+            else
+                count(i) = -1;
+                if i == length(indices) & i < length(theSize)
+                    j = i+1:length(theSize);
+                    count(j) = -ones(1, length(j));
+                end
+            end
+        end
+        start(start < 0) = 0;
+        stride(stride < 0) = 1;
+        for i = 1:length(count)
+            if count(i) == -1
+                maxcount = fix((theSize(i)-start(i)+stride(i)-1) ./ stride(i));
+                count(i) = maxcount;
+            end
+        end
+        count(count < 0) = 0;
+        if any(count == 0), error(' ## Bad count.'), end
+        result = netcdf.getVar(self.ncid, self.varId, start, count, stride);
+
+      else
+        result = [];
+        status = 0;
+      end
+
+    end
+
 %     XXX: Handle multi-dimensional arrays
     function s = set(self, val)
-      if (isscalar(val) && prod(self.size())~=1)
+      if (isscalar(val) && prod(self.size())>1)
         val2 = zeros(self.size(), nc4.nctype.matlab_type(self.xtype));
         val2(:) = val;
-        val = val2;
+        val = val2; 
       end
       netcdf.putVar(self.ncid, self.varId, val);
       s = self;
@@ -56,6 +144,10 @@ classdef ncvar < nc4.ncobject
         sz(i) = dms{i}.len;
       end
       sz = flip(sz);
+    end
+
+    function dt = datatype(self)
+      dt = nc4.nctype.matlab_type(self.xtype);
     end
 
     function dms = dimensions(self)

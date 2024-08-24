@@ -6,7 +6,8 @@ classdef ncobject < handle
         function self = ncobject(vargin)
         end
 
-        function res = subsref(self, tstruct)
+%         Subsref dispatcher
+        function res = subsrefxx(self, tstruct)
             s = tstruct(1);
             type = s.type;
             subs = s.subs;
@@ -18,7 +19,8 @@ classdef ncobject < handle
                         if isprop(self, subs)
                             res = self.(subs); return, end
                         if ismethod(self, subs)
-                            res = self.(subs)(tstruct(1).subs{:});
+                            args = tstruct(1).subs;
+                            res = self.(subs)(args{:});
                             return
                         else
                             res = att(self, subs).get();
