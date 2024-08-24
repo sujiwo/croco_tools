@@ -22,7 +22,9 @@ classdef ncatt < handle
             netcdf.putAtt(self.ncid, self.varId, self.name, val);
         end
 
-        function delete(self)
+        % XXX: do NOT use name "delete" as it will be called automatically
+        % when garbage-collecting
+        function del(self)
             netcdf.delAtt(self.ncid, self.varId, self.name);
         end
 

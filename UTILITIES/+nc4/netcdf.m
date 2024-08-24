@@ -91,7 +91,8 @@ classdef netcdf < handle
           if nargin==1
               permission=netcdf.getConstant('CLOBBER');
           end
-          permission = bitor(permission, netcdf.getConstant('NETCDF4'));
+          % Warning: race condition
+          delete(path);
           id = netcdf.create(path, permission);
           netcdf.close(id);
           fileobj = nc4.netcdf(path, 'write');

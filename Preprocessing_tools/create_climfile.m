@@ -55,7 +55,7 @@ function create_climfile(clmname,grdname,title,...
 %  e-mail:Pierrick.Penven@ird.fr
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-disp(' ')
+    disp(' ')
 disp([' Creating the file : ',clmname])
 disp(' ')
 if nargin < 11
