@@ -53,7 +53,7 @@ sina=sin(angle);
 %
 % Open the OGCM file
 %
-nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(year),'M',num2str(month),'.cdf'], 'nowrite');
+nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(year),'M',num2str(month),'.cdf']);
 %
 % Interpole data on the OGCM Z grid and CROCO horizontal grid
 %
@@ -260,13 +260,13 @@ close(nc)
 % Get the CROCO vertical grid
 %
 disp('  Vertical interpolations')
-if ~isempty(nc_clm) || isa(nc_clm,'ncfile')
+if ~isempty(nc_clm)
   theta_s=nc_clm{'theta_s'}(:);
   theta_b=nc_clm{'theta_b'}(:);
   hc=nc_clm{'hc'}(:);
   N=length(nc_clm('s_rho'));
 end
-if ~isempty(nc_bry) || isa(nc_bry,'ncfile')
+if ~isempty(nc_bry)
   theta_s=nc_bry{'theta_s'}(:);
   theta_b=nc_bry{'theta_b'}(:);
   hc=nc_bry{'hc'}(:);

@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Create and fill CROCO clim and bry files with OGCM
+%  Create and fill CROCO clim and bry files with OGCM 
 %  MERCATOR data.
 %
 %  On crocotools_param.m, available datasets:
@@ -11,16 +11,16 @@
 %                1 -->  1/12 deg Mercator global reanalysis (1993   -> 202101)
 %                                           (Monthly or Daily product)
 %                2 -->  1/12 deg Mercator global analysis   (202011 -> )
-%
+%       
 %            Note for 2:
 %                    (7days from now -> now-1day : Near Real Time analysis)
 %                    (more than 15days from now  : Best analysis)
 %
 %  Online reference to MERCATOR is at http://marine.copernicus.eu
-%
-%  Further Information:
+% 
+%  Further Information:  
 %  http://www.croco-ocean.org
-%
+%  
 %  This file is part of CROCOTOOLS
 %
 %  CROCOTOOLS is free software; you can redistribute it and/or modify
@@ -38,8 +38,8 @@
 %  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %  MA  02111-1307  USA
 %
-%  Copyright (c) 2005-2006 by Pierrick Penven
-%  e-mail:Pierrick.Penven@ird.fr
+%  Copyright (c) 2005-2006 by Pierrick Penven 
+%  e-mail:Pierrick.Penven@ird.fr  
 %
 %  Contributions of P. Marchesiello (IRD), J. Lefevre (IRD),
 %                   and F. Colberg (UCT)
@@ -68,7 +68,7 @@ itolap_tot=itolap_a + itolap_p;
 disp(['Overlap before =',num2str(itolap_a)])
 disp(['Overlap after =',num2str(itolap_p)])
 disp(['Total overlap =',num2str(itolap_tot)])
-disp(['...'])
+disp(['...'])   
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % end of user input  parameters
@@ -86,12 +86,12 @@ end
 %
 % Get the model grid
 %
-nc=netcdf(grdname,'r');
+nc=netcdf(grdname);
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 angle=nc{'angle'}(:);
 h=nc{'h'}(:);
-close(nc);
+close(nc)
 %
 % Extract data over the internet
 %
@@ -105,7 +105,7 @@ if Download_data==1
     latmax=max(max(lat));
     %
     % Download data with DODS (the download matlab routine depends on the OGCM)
-    %
+    % 
     disp('Download data...')
     % Loop on the years
     %
@@ -122,21 +122,21 @@ if Download_data==1
             mo_max=12;
         end
         for M=mo_min:mo_max
-            thedatemonth=['Y',num2str(Y),'M',num2str(M)];
+            thedatemonth=['Y',num2str(Y),'M',num2str(M)];          
             download_mercator_python(pathCMC,user,password,mercator_type,...
                                      product_id, ...
                                      Y,M, ...
                                      lonmin,lonmax,latmin,latmax,hmax, ...
-                                     OGCM_dir,OGCM_prefix,thedatemonth,Yorig)
+                                     OGCM_dir,OGCM_prefix,thedatemonth,Yorig)           
         end
-    end  %End loop over month and years for the downloading with python/motu client
+    end  %End loop over month and years for the downloading with python/motu client 
 end %End loop for Download_data
 %
 %------------------------------------------------------------------------------------
 %
-% Get the OGCM grid
-%
-nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(Ymin),'M',num2str(Mmin),'.cdf'], 'r');
+% Get the OGCM grid 
+% 
+nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(Ymin),'M',num2str(Mmin),'.cdf']);
 lonT=nc{'lonT'}(:);
 latT=nc{'latT'}(:);
 lonU=nc{'lonU'}(:);
@@ -149,9 +149,9 @@ NZ=NZ-rmdepth;
 Z=Z(1:NZ);
 close(nc)
 %
-% Initial file
+% Initial file 
 % (the strategy is to start at the begining of a month)
-% it is possible to do some temporal interpolation...
+% it is possible to do some temporal interpolation... 
 % but I am too lazy. lets start the first day of
 % month Mmin of year Ymin... with the first data available.
 %
@@ -172,14 +172,14 @@ if makeini==1
 		 theta_s,theta_b,hc,N,...
 		 tini,'clobber', vtransform);
   nc_ini=netcdf(ininame,'write');
-  interp_OGCM(OGCM_dir,OGCM_prefix,Ymin,Mmin,Roa,interp_method,...
+  interp_OGCM2(OGCM_dir,OGCM_prefix,Ymin,Mmin,Roa,interp_method,...
 	            lonU,latU,lonV,latV,lonT,latT,Z,1,...
 	            nc_ini,[],lon,lat,angle,h,1,obc,vtransform)
-  nc_add_globatt(ininame,Yorig,Mmin,Dmin,Hmin,Min_min,Smin,OGCM);
+  nc_add_globatt(ininame,Yorig,Mmin,Dmin,Hmin,Min_min,Smin,OGCM); 
   close(nc_ini)
 end
 %
-% Clim and Bry files
+% Clim and Bry files 
 %
 if makeclim==1 | makebry==1
     if  ~exist('vtransform')
@@ -191,7 +191,7 @@ if makeclim==1 | makebry==1
   % Loop on the years and the months
   %
   for Y=Ymin:Ymax
-    if Y==Ymin
+    if Y==Ymin 
       mo_min=Mmin;
     else
       mo_min=1;
@@ -202,6 +202,7 @@ if makeclim==1 | makebry==1
       mo_max=12;
     end
     for M=mo_min:mo_max
+    tic
       disp(' ')
       disp(['Processing  year ',num2str(Y),...
 	    ' - month ',num2str(M)])
@@ -218,9 +219,9 @@ if makeclim==1 | makebry==1
 	      Yp=Y+1;
       end
       %
-      % Add 2 times step in the CROCO files: 1 at the beginning and 1 at the end
+      % Add 2 times step in the CROCO files: 1 at the beginning and 1 at the end 
       %
-      nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(Y),'M',num2str(M),'.cdf'], 'r');
+      nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(Y),'M',num2str(M),'.cdf']);
       OGCM_time=nc{'time'}(:);
       ntimes=length(OGCM_time);
       if ntimes==1
@@ -236,22 +237,22 @@ if makeclim==1 | makebry==1
       %% Fill the time axis
       %
       croco_time=0*(1:ntimes+itolap_tot);
-      %Current month
+      %Current month	
       croco_time(itolap_a+1:end-itolap_p)=OGCM_time;
       %
-      %Previous  month                                                  
+      %Previous  month
       %
       disp(['==================================='])
       for aa= 1:itolap_a
-	      disp(['Compute beginning overlap, time index:',num2str(aa)])
+	      disp(['Compute beginning overlap, time index:',num2str(aa)])	
 	      disp(['Add ',num2str(-(itolap_a + 1 - aa)), ' timestep dt'])
 	      disp(['--------'])
 	      croco_time(aa) = croco_time(itolap_a+1) - ((itolap_a + 1 - aa).* dt);
       end
       %
-      %Next month
+      %Next month	
       %
-      disp(['==================================='])
+      disp(['==================================='])	
       for aa= 1:itolap_p
 	      disp(['Compute end overlap, time index:',num2str(ntimes+itolap_tot - itolap_p + aa)])
 	      disp(['Add ',num2str(aa), ' timestep dt'])
@@ -260,7 +261,7 @@ if makeclim==1 | makebry==1
       end
       disp(['==================================='])
       close(nc)
-      %-----------------------------------------------------
+      %-----------------------------------------------------	
       %
       % Create and open the CROCO files
       %
@@ -268,23 +269,32 @@ if makeclim==1 | makebry==1
 	      bryname=[bry_prefix,'Y',num2str(Y),...
 		            'M',num2str(sprintf(Mth_format,M)),nc_suffix];
 	      disp([' '])
+          % only create when file does not exist
+          if ~exist(bryname, 'file')
               disp(['=> Create bry file : ',  bryname ])
-	      create_bryfile(bryname,grdname,CROCO_title,[1 1 1 1],...
-		       theta_s,theta_b,hc,N,...
-		       croco_time,0,'clobber',vtransform);
-        nc_add_globatt(bryname,Yorig,Mmin,Dmin,Hmin,Min_min,Smin,OGCM);
+	          create_bryfile(bryname,grdname,CROCO_title,[1 1 1 1],...
+		           theta_s,theta_b,hc,N,...
+		           croco_time,0,'clobber',vtransform);
+          end
+          nc_add_globatt(bryname,Yorig,Mmin,Dmin,Hmin,Min_min,Smin,OGCM); 
 	      nc_bry=netcdf(bryname,'write');
+          % XXX: cara akses attribute
+          % nc_bry.hasInterpPrev = 2;
+          % disp(nc_bry.hasInterpPrev(1))
       else
 	      nc_bry=[];
       end
       if makeclim==1
 	      clmname=[clm_prefix,'Y',num2str(Y),...
 	            	 'M',num2str(sprintf(Mth_format,M)),nc_suffix];
-	      create_climfile(clmname,grdname,CROCO_title,...
-	                  		theta_s,theta_b,hc,N,...
-			croco_time,0,'clobber',vtransform);
-      nc_add_globatt(clmname,Yorig,Mmin,Dmin,Hmin,Min_min,Smin,OGCM);
-	    nc_clm=netcdf(clmname,'write');
+          % only create when file does not exist
+          if ~exist(clmname, 'file')
+	          create_climfile(clmname,grdname,CROCO_title,...
+	                  		    theta_s,theta_b,hc,N,...
+			  croco_time,0,'clobber',vtransform);
+          end
+          nc_add_globatt(clmname,Yorig,Mmin,Dmin,Hmin,Min_min,Smin,OGCM); 
+          nc_clm=netcdf(clmname,'write');
       else
 	      nc_clm=[];
       end
@@ -292,7 +302,7 @@ if makeclim==1 | makebry==1
       % Check if there are OGCM files for the previous Month
       %
       fname=[OGCM_dir,OGCM_prefix,'Y',num2str(Ym),'M',num2str(Mm),'.cdf'];
-      if exist(fname)==0                        
+      if exist(fname, 'file')==0
 	      disp(['   No data for the previous month: using current month'])
         Mm=M;
 	      Ym=Y;
@@ -307,52 +317,72 @@ if makeclim==1 | makebry==1
       %
       disp(' Previous month :')
       disp('=================')
-      for aa=1:itolap_a
-	      disp(['Beg overlap # ', num2str(aa),' -> tindex ',num2str(aa)])
-	      disp(['It. of prev month used for it= ',num2str(tndx_OGCM(aa))])
-	      interp_OGCM(OGCM_dir,OGCM_prefix,Ym,Mm,Roa,interp_method,...
-	            	    lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
-		    nc_clm,nc_bry,lon,lat,angle,h,aa,obc,vtransform)
+
+      if ( (~isempty(nc_clm) & nc_clm.hasInterpPrev(1)==0) | (~isempty(nc_bry) & nc_bry.hasInterpPrev(1)==0) )
+          for aa=1:itolap_a
+	          disp(['Beg overlap # ', num2str(aa),' -> tindex ',num2str(aa)])
+	          disp(['It. of prev month used for it= ',num2str(tndx_OGCM(aa))])
+	          interp_OGCM2(OGCM_dir,OGCM_prefix,Ym,Mm,Roa,interp_method,...
+	            lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
+		        nc_clm,nc_bry,lon,lat,angle,h,aa,obc,vtransform)
+          end
+          if ~isempty(nc_bry), nc_bry.hasInterpPrev=1; end
+          if ~isempty(nc_clm), nc_clm.hasInterpPrev=1; end
+      else
+          disp(" Interpolation for previous month already done, skipped")
       end
+
       %
       % Perform the interpolations for the current month
       %
-
       disp(' Current month :')
       disp('================')
-      for tndx_OGCM=1:ntimes
-	      disp([' Time step : ',num2str(tndx_OGCM),' of ',num2str(ntimes),' :'])
-	      interp_OGCM(OGCM_dir,OGCM_prefix,Y,M,Roa,interp_method,...
-		                lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM,...
-		    nc_clm,nc_bry,lon,lat,angle,h,tndx_OGCM+itolap_a,obc,vtransform)
+      if ( (~isempty(nc_clm) & nc_clm.hasInterpCur(1)==0) | (~isempty(nc_bry) & nc_bry.hasInterpCur(1)==0) )
+          for tndx_OGCM=1:ntimes
+	          disp([' Time step : ',num2str(tndx_OGCM),' of ',num2str(ntimes),' :'])
+	          interp_OGCM2(OGCM_dir,OGCM_prefix,Y,M,Roa,interp_method,...
+                lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM,...
+		        nc_clm,nc_bry,lon,lat,angle,h,tndx_OGCM+itolap_a,obc,vtransform)
+          end
+          if ~isempty(nc_bry), nc_bry.hasInterpCur=1; end
+          if ~isempty(nc_clm), nc_clm.hasInterpCur=1; end
+      else
+          disp(" Interpolation for current month already done, skipped")
       end
+
       %
       % Read the OGCM file for the next month
       %
       fname=[OGCM_dir,OGCM_prefix,'Y',num2str(Yp),'M',num2str(Mp),'.cdf'];
-      if exist(fname)==0
+      if exist(fname,'file')==0
 	      disp(['   No data for the next month: using current month'])
 	      Mp=M;
 	      Yp=Y;
-	      for aa=1:itolap_p
+	      for aa=1:itolap_p    
 	        tndx_OGCM(aa)=ntimes;
 	      end
       else
-	    for aa=1:itolap_p
+	    for aa=1:itolap_p  
 	      tndx_OGCM(aa)=aa;
 	    end;
-    end
+      end
       %
       % Perform the interpolations for the next month
       %
       disp(' Next month :')
       disp('=============')
-      for aa=1:itolap_p
-	      disp(['End Overlap #',num2str(aa),' -> tindex ',num2str(ntimes+itolap_a+aa)])
-	      disp(['It. of next month used for it= ',num2str(tndx_OGCM(aa))])
-	      interp_OGCM(OGCM_dir,OGCM_prefix,Yp,Mp,Roa,interp_method,...
-	            	    lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
-		    nc_clm,nc_bry,lon,lat,angle,h,ntimes+itolap_a+aa,obc,vtransform)
+      if ( (~isempty(nc_clm) & nc_clm.hasInterpNext(1)==0) | (~isempty(nc_bry) & nc_bry.hasInterpNext(1)==0) )
+          for aa=1:itolap_p 
+	          disp(['End Overlap #',num2str(aa),' -> tindex ',num2str(ntimes+itolap_a+aa)])
+	          disp(['It. of next month used for it= ',num2str(tndx_OGCM(aa))])
+	          interp_OGCM2(OGCM_dir,OGCM_prefix,Yp,Mp,Roa,interp_method,...
+	            	        lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
+		        nc_clm,nc_bry,lon,lat,angle,h,ntimes+itolap_a+aa,obc,vtransform)
+          end
+          if ~isempty(nc_bry), nc_bry.hasInterpNext=1; end
+          if ~isempty(nc_clm), nc_clm.hasInterpNext=1; end
+      else
+          disp(" Interpolation for next month already done, skipped")
       end
       %
       % Close the CROCO files
@@ -365,6 +395,8 @@ if makeclim==1 | makebry==1
       end
       %
     end
+    tx=toc; 
+    disp(['Elapsed comptime for month: ', num2str(tx), ' seconds'])
   end
 end
 %
@@ -381,7 +413,7 @@ if SPIN_Long>0
     %
     ininame=[ini_prefix,'Y',num2str(Ymin),'M',num2str(sprintf(Mth_format,Mmin)),nc_suffix];
     ininame2=[ini_prefix,'Y',num2str(Ymin-SPIN_Long),'M',num2str(sprintf(Mth_format,Mmin)),nc_suffix];
-    disp(['Create ',ininame2])
+    disp(['Create ',ininame2]) 
     eval(['!cp ',ininame,' ',ininame2])
     %
     % Change the time
@@ -397,7 +429,7 @@ if SPIN_Long>0
   for month=1:12*SPIN_Long
     M=M+1;
     if M==13
-      M=1;
+      M=1; 
       Y=Y+1;
     end
     %
@@ -409,8 +441,8 @@ if SPIN_Long>0
       %
       clmname=[clm_prefix,'Y',num2str(Ymin),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
       clmname2=[clm_prefix,'Y',num2str(Y),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
-      disp(['Create ',clmname2])
-      eval(['!cp ',clmname,' ',clmname2])
+      disp(['Create ',clmname2]) 
+      eval(['!cp ',clmname,' ',clmname2]) 
       %
       % Change the time
       %
@@ -437,8 +469,8 @@ if SPIN_Long>0
       %
       bryname=[bry_prefix,'Y',num2str(Ymin),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
       bryname2=[bry_prefix,'Y',num2str(Y),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
-      disp(['Create ',bryname2])
-      eval(['!cp ',bryname,' ',bryname2])
+      disp(['Create ',bryname2]) 
+      eval(['!cp ',bryname,' ',bryname2]) 
       %
       % Change the time
       %

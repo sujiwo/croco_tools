@@ -2,13 +2,13 @@ function write_mercator(OGCM_dir,OGCM_prefix,raw_mercator_name,...
                          mercator_type,vars,time,thedatemonth,Yorig)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Extract a subset from Mercator  in the case of hindcast
+% Extract a subset from Mercator  in the case of hindcast 
 % using python  copernicusmarine client
 % Write it in a local file (keeping the classic SODA netcdf format)
-%
-%  Further Information:
+% 
+%  Further Information:  
 %  http://www.croco-ocean.org
-%
+%  
 %  This file is part of CROCOTOOLS
 %
 %  CROCOTOOLS is free software; you can redistribute it and/or modify
@@ -26,8 +26,8 @@ function write_mercator(OGCM_dir,OGCM_prefix,raw_mercator_name,...
 %  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %  MA  02111-1307  USA
 %
-%  Copyright (c) 2006 by Pierrick Penven
-%  e-mail:Pierrick.Penven@ird.fr
+%  Copyright (c) 2006 by Pierrick Penven 
+%  e-mail:Pierrick.Penven@ird.fr  
 %
 %  Updated    9-Sep-2006 by Pierrick Penven
 %  Updated    19-May-2011 by Andres Sepulveda & Gildas Cambon
@@ -62,7 +62,7 @@ ssh = ssh.*scale_factor + add_offset;
 %
 % Get U
 %
-        disp('    ...U')
+disp('    ...U')
 vname=sprintf('%s',vars{2});
 ncc=nc{vname};
 u=ncc(:);
