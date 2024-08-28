@@ -117,7 +117,15 @@ classdef ncvar < nc4.ncobject
         end
         count(count < 0) = 0;
         if any(count == 0), error(' ## Bad count.'), end
-        result = netcdf.getVar(self.ncid, self.varId, start, count, stride);
+        if all(count==1)
+          result = netcdf.getVar(self.ncid, self.varId, start);
+        elseif (all(stride==1))
+          result = netcdf.getVar(self.ncid, self.varId, start, count);
+        else
+            start = fliplr(start);
+            count = fliplr(count);
+          result = netcdf.getVar(self.ncid, self.varId, start, count, stride);
+        end
 
       else
         result = [];
