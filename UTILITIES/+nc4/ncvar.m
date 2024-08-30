@@ -1,15 +1,15 @@
 classdef ncvar < nc4.ncobject
 
 properties
-ncid
-varId
-attributes
-xtype
-dimIds
-numAttrs
-name
-myOrientation
-dimNames = {}
+  ncid
+  varId
+  attributes
+  xtype
+  dimIds
+  numAttrs
+  name
+  myOrientation
+  dimNames = {}
 end
 
 methods
@@ -55,6 +55,7 @@ function ct = getAll(self)
 end
 
 function result = get(self, varargin)
+  result = [];
   indices = varargin;
   theSize = self.size();
   for i = 1:length(indices)
@@ -118,12 +119,13 @@ function result = get(self, varargin)
     count(count < 0) = 0;
     if any(count == 0), error(' ## Bad count.'), end
     if all(count==1)
+      start = fliplr(start);
       result = netcdf.getVar(self.ncid, self.varId, start);
     elseif (all(stride==1))
       result = netcdf.getVar(self.ncid, self.varId, start, count);
     else
-        start = fliplr(start);
-        count = fliplr(count);
+      start = fliplr(start);
+      count = fliplr(count);
       result = netcdf.getVar(self.ncid, self.varId, start, count, stride);
     end
 
