@@ -121,18 +121,55 @@ function result = get(self, varargin)
     if all(count==1)
       start = fliplr(start);
       result = netcdf.getVar(self.ncid, self.varId, start);
+      status = 1;
     elseif (all(stride==1))
-      result = netcdf.getVar(self.ncid, self.varId, start, count);
+        start = fliplr(start(:)');
+        count = fliplr(count(:)');
+        result = netcdf.getVar(self.ncid, self.varId, start, count, 'double');
+        status = 1;
     else
-      start = fliplr(start);
-      count = fliplr(count);
       result = netcdf.getVar(self.ncid, self.varId, start, count, stride);
+      status = 1;
     end
 
   else
     result = [];
     status = 0;
   end
+
+    if status>=0 & prod(size(result)) > 0 & (ndims(result)==2) & (strcmp(class(result),'char')) & any(find(size(result)==1))
+        %
+		% If the read operation was successful
+		% and if something was actually returned
+		% and if that something has exactly two dimensions
+		% and if that something was character
+		% and if that character string is actually 1D (ndims never returns 1)
+		% then do not permute.
+		%
+		% This way 1D character arrays are loaded as column vectors.
+		%
+		% Now if you'll excuse me, after writing this code fragment, I have to go
+		% wash my hands vigorously for a few hours (get it off, get it off, get it off, unclean..)
+		;
+    elseif status >= 0 & prod(size(result)) > 0
+        result = permute(result, length(size(result)):-1:1);
+        theOrientation = orient(self);
+        if any(theOrientation < 0) | any(diff(theOrientation) ~= 1)
+            for i = 1:length(theOrientation)
+                if theOrientation(i) < 0
+                    result = flip(result, abs(theOrientation(i)));
+                end
+            end
+            if length(theOrientation) < 2
+                theOrientation = [theOrientation 2];
+            end
+            result = permute(result, abs(theOrientation));
+        end
+    elseif status >= 0 & prod(size(result)) == 0
+		result = [];
+    else
+        warning(' ## ncvar/subsref failure.')
+    end
 
 end
 
