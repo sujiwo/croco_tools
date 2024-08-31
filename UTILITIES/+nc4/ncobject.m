@@ -7,7 +7,7 @@ classdef ncobject < handle
         end
 
 %         Subsref dispatcher
-        function res = subsrefxx(self, tstruct)
+        function res = subsref(self, tstruct)
             s = tstruct(1);
             type = s.type;
             subs = s.subs;
@@ -38,7 +38,12 @@ classdef ncobject < handle
                         error("### Unsupported indexing method")
                     end
                 case '()'
-                    x = 1;
+                    if ismethod(self, 'get')
+                        res = get(self, subs{:});
+                        return
+                    else
+                        error("### Unsupported reference")
+                    end
             end
             x = 1;
         end

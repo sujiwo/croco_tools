@@ -10,6 +10,7 @@ properties
   name
   myOrientation
   dimNames = {}
+  dimSizes
 end
 
 methods
@@ -18,12 +19,14 @@ function s = ncvar(ncId, varId)
   s.ncid = ncId;
   s.varId = varId;
   [s.name, s.xtype, s.dimIds, s.numAttrs] = netcdf.inqVar(ncId, varId);
+  s.dimIds = fliplr(s.dimIds);
 
   for i=0:s.numAttrs-1
     s.attributes{i+1} = netcdf.inqAttName(s.ncid, s.varId, i);
   end
+  s.dimSizes = zeros(length(s.dimIds),1);
   for i=1:length(s.dimIds)
-    [s.dimNames{i}, dlen] = netcdf.inqDim(s.ncid, s.dimIds(i));
+    [s.dimNames{i}, s.dimSizes(i)] = netcdf.inqDim(s.ncid, s.dimIds(i));
   end
 end
 
@@ -34,14 +37,14 @@ end
 function o = orient(self, theOrientation)
   if nargin > 1
     if isempty(theOrientation)
-      theOrientation = 1:length(self.size());
+      theOrientation = 1:length(self.ncsize());
     end
     self.myOrientation = theOrientation;
     o = self;
   else
     o = self.myOrientation;
     if isempty(o)
-      o = 1:length(self.size());
+      o = 1:length(self.ncsize());
     end
   end
 end
@@ -57,7 +60,7 @@ end
 function result = get(self, varargin)
   result = [];
   indices = varargin;
-  theSize = self.size();
+  theSize = self.ncsize();
   for i = 1:length(indices)
       if isnumeric(indices{i})
           if any(diff(diff(indices{i})))
@@ -175,8 +178,8 @@ end
 
 %     XXX: Handle multi-dimensional arrays
 function s = set(self, val)
-  if (isscalar(val) && prod(self.size())>1)
-    val2 = zeros(self.size(), nc4.nctype.matlab_type(self.xtype));
+  if (isscalar(val) && prod(self.ncsize())>1)
+    val2 = zeros(self.ncsize(), nc4.nctype.matlab_type(self.xtype));
     val2(:) = val;
     val = val2;
   end
@@ -184,13 +187,8 @@ function s = set(self, val)
   s = self;
 end
 
-function sz = size(self)
-  sz = zeros(1, length(self.dimIds));
-  dms = self.dimensions();
-  for i = 1:length(dms)
-    sz(i) = dms{i}.len;
-  end
-  sz = flip(sz);
+function sz = ncsize(self)
+    sz = self.dimSizes;
 end
 
 function dt = datatype(self)
