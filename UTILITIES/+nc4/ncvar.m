@@ -57,6 +57,75 @@ function ct = getAll(self)
   ct = permute(ct, order);
 end
 
+function [start,count,stride] = process_indices(indices)
+    theSize = self.ncsize();
+    for i = 1:length(indices)
+        if isnumeric(indices{i})
+            if any(diff(diff(indices{i})))
+                disp(' ## Indexing strides must be positive and constant.')
+                return
+            end
+        end
+    end
+    
+    % Flip and permute indices before proceeding,
+    %  since we are using virtual indexing.
+    
+    theOrientation = self.orient();
+    if any(theOrientation < 0) | any(diff(theOrientation) ~= 1)
+        for i = 1:length(theOrientation)
+            if theOrientation(i) < 0
+                if isa(indices{i}, 'double')   % Slide the indices.
+                    indices{i} = fliplr(theSize(i) + 1 - indices{i});
+                end
+            end
+        end
+        indices(abs(theOrientation)) = indices;
+        theSize(abs(theOrientation)) = theSize;
+    end
+    
+    if prod(theSize) > 0
+        if isempty(theSize)
+            start = 0;
+        else
+            start = zeros(1, length(theSize));
+        end
+    
+        count = ones(1, length(theSize));
+        stride = ones(1, length(theSize));
+        for i = 1:min(length(indices), length(theSize))
+            k = indices{i};
+            if ~isstr(k) & ~strcmp(k, ':') & ~strcmp(k, '-')
+                start(i) = k(1)-1;
+                count(i) =  length(k);
+                d = 0;
+                if length(k) > 1, d = diff(k); end
+                stride(i) = max(d(1), 1);
+            else
+                count(i) = -1;
+                if i == length(indices) & i < length(theSize)
+                    j = i+1:length(theSize);
+                    count(j) = -ones(1, length(j));
+                end
+            end
+        end
+        start(start < 0) = 0;
+        stride(stride < 0) = 1;
+        for i = 1:length(count)
+            if count(i) == -1
+                maxcount = fix((theSize(i)-start(i)+stride(i)-1) ./ stride(i));
+                count(i) = maxcount;
+            end
+        end
+        count(count < 0) = 0;
+    else
+        start = [];
+        count = [];
+        stride = [];
+    end
+end
+
+% XXX: Should refactor to put start/count/stride out of this function
 function result = get(self, varargin)
   result = [];
   indices = varargin;
@@ -177,14 +246,19 @@ function result = get(self, varargin)
 end
 
 %     XXX: Handle multi-dimensional arrays
-function s = set(self, indices, val)
-  if (isscalar(val) && prod(self.ncsize())>1)
-    val2 = zeros(self.ncsize(), nc4.nctype.matlab_type(self.xtype));
-    val2(:) = val;
-    val = val2;
-  end
-  netcdf.putVar(self.ncid, self.varId, val);
-  s = self;
+function s = set(self, indices, value)
+    [start,count,stride] = self.process_indices(indices);
+
+    if any(count==0), error(" ## Bad count"), end
+    while length(count) < 2, count = [count 1]; end
+    temp = zeros(count);
+
+    if all(count==1)
+        if isempty(start)
+            status = netcdf.putVar(self.ncid, self.varId, 0, 0, 0);
+        else
+        end
+    end
 end
 
 function sz = ncsize(self)
