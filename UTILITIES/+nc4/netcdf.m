@@ -35,9 +35,13 @@ classdef netcdf < nc4.ncobject
       end
     end
 
-    function r = close(self)
+    function delete(self)
+        close(self);
+    end
+
+    function close(self)
         netcdf.close(self.id);
-        r=1;
+        self.id = -1;
     end
 
     function ds = dimensions(self)

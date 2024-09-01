@@ -177,7 +177,7 @@ function result = get(self, varargin)
 end
 
 %     XXX: Handle multi-dimensional arrays
-function s = set(self, val)
+function s = set(self, indices, val)
   if (isscalar(val) && prod(self.ncsize())>1)
     val2 = zeros(self.ncsize(), nc4.nctype.matlab_type(self.xtype));
     val2(:) = val;

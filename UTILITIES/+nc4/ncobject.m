@@ -6,7 +6,7 @@ classdef ncobject < handle
         function self = ncobject(vargin)
         end
 
-%         Subsref dispatcher
+        % Subsref dispatcher
         function res = subsref(self, tstruct)
             s = tstruct(1);
             type = s.type;
@@ -45,7 +45,43 @@ classdef ncobject < handle
                         error("### Unsupported reference")
                     end
             end
-            x = 1;
+        end
+
+        % subsasgn dispatcher
+        function res = subsasgn(self, operator, input)
+            s = operator(1);
+            type = s.type;
+            subs = s.subs;
+            operator(1) = [];
+
+            switch type
+                case '.'
+                    if isprop(self, subs)
+                        self.(subs) = input;
+                    else
+                        try
+                            res = att(self, subs).get();
+                        catch me
+                            % we let on-the-fly attribute creation
+                            if isprop(self, 'varId')
+                                res = nc4.ncatt.create(self.ncid, subs, self.varId);
+                            else
+                                res = nc4.ncatt.create(self.id, subs);
+                            end
+                        end
+                        res.set(input);
+                    end
+                case '{}'
+                    if ismethod(self, 'var')
+                        subs = subs{1};
+                        v = var(self, subs);
+                        indices = operator(1).subs;
+                        v.set(indices, input);
+                        return
+                    else
+                        error("### Unsupported variable index")
+                    end
+            end
         end
     end
 end
