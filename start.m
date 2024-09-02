@@ -90,10 +90,10 @@ if ((myversion > 13)    )
 %
 % - If these directories are already in your matlab native path, 
 % you can comment these lines
-  addpath([myutilpath,'mexcdf/netcdf_toolbox/netcdf'])
-  addpath([myutilpath,'mexcdf/netcdf_toolbox/netcdf/ncsource'])
-  addpath([myutilpath,'mexcdf/netcdf_toolbox/netcdf/nctype'])
-  addpath([myutilpath,'mexcdf/netcdf_toolbox/netcdf/ncutility'])
+  addpath([myutilpath,'netcdf_toolbox2/netcdf/'])
+  addpath([myutilpath,'netcdf_toolbox2/netcdf/ncsource'])
+  addpath([myutilpath,'netcdf_toolbox2/netcdf/nctype'])
+  addpath([myutilpath,'netcdf_toolbox2/netcdf/ncutility'])
 %
 % Use of built in opendap libraries (no loaddap) - S. Illig 2015 
 %
