@@ -72,7 +72,7 @@ function [start,count,stride] = process_indices(self, indices)
     %  since we are using virtual indexing.
     
     theOrientation = self.orient();
-    if any(theOrientation < 0) | any(diff(theOrientation) ~= 1)
+    if any(theOrientation < 0) || any(diff(theOrientation) ~= 1)
         for i = 1:length(theOrientation)
             if theOrientation(i) < 0
                 if isa(indices{i}, 'double')   % Slide the indices.
@@ -95,7 +95,7 @@ function [start,count,stride] = process_indices(self, indices)
         stride = ones(1, length(theSize));
         for i = 1:min(length(indices), length(theSize))
             k = indices{i};
-            if ~isstr(k) & ~strcmp(k, ':') & ~strcmp(k, '-')
+            if ~isstr(k) && ~strcmp(k, ':') && ~strcmp(k, '-')
                 start(i) = k(1)-1;
                 count(i) =  length(k);
                 d = 0;
@@ -103,7 +103,7 @@ function [start,count,stride] = process_indices(self, indices)
                 stride(i) = max(d(1), 1);
             else
                 count(i) = -1;
-                if i == length(indices) & i < length(theSize)
+                if i == length(indices) && i < length(theSize)
                     j = i+1:length(theSize);
                     count(j) = -ones(1, length(j));
                 end
@@ -139,14 +139,17 @@ function result = get(self, varargin)
     elseif (all(stride==1))
         start = fliplr(start(:)');
         count = fliplr(count(:)');
-        result = netcdf.getVar(self.ncid, self.varId, start, count, 'double');
+        result = netcdf.getVar(self.ncid, self.varId, start, count);
         status = 1;
     else
+        start = fliplr(start(:)');
+        count = fliplr(count(:)');
+        stride = fliplr(stride(:)');
         result = netcdf.getVar(self.ncid, self.varId, start, count, stride);
         status = 1;
     end
 
-    if status>=0 & prod(size(result)) > 0 & (ndims(result)==2) & (strcmp(class(result),'char')) & any(find(size(result)==1))
+    if status>=0 && prod(size(result)) > 0 && (ndims(result)==2) && (strcmp(class(result),'char')) && any(find(size(result)==1))
         %
         % If the read operation was successful
         % and if something was actually returned
@@ -160,7 +163,7 @@ function result = get(self, varargin)
         % Now if you'll excuse me, after writing this code fragment, I have to go
         % wash my hands vigorously for a few hours (get it off, get it off, get it off, unclean..)
         ;
-    elseif status >= 0 & prod(size(result)) > 0
+    elseif status >= 0 && prod(size(result)) > 0
         result = permute(result, length(size(result)):-1:1);
         theOrientation = orient(self);
         if any(theOrientation < 0) | any(diff(theOrientation) ~= 1)
@@ -174,7 +177,7 @@ function result = get(self, varargin)
             end
             result = permute(result, abs(theOrientation));
         end
-    elseif status >= 0 & prod(size(result)) == 0
+    elseif status >= 0 && prod(size(result)) == 0
         result = [];
     else
         warning(' ## ncvar/subsref failure.')
@@ -191,7 +194,7 @@ function s = set(self, indices, value)
     count = count(1:length(start));
     temp(:) = value;
     theOrientation = orient(self);
-    if any(theOrientation < 0) | any(diff(theOrientation) ~= 1)
+    if any(theOrientation < 0) || any(diff(theOrientation) ~= 1)
         if length(theOrientation) < 2
             theOrientation = [theOrientation 2];
         end
