@@ -77,6 +77,7 @@ classdef ncobject < handle
                         v = var(self, subs);
                         indices = operator(1).subs;
                         v.set(indices, input);
+                        res = self;
                         return
                     else
                         error("### Unsupported variable index")
