@@ -69,5 +69,5 @@ addpath([tools_path,'Town'])
 %
 %-------------------------------------------------------
 %
-pkg load netcdf
+
 netcdf.setDefaultFormat('NC_FORMAT_NETCDF4');

@@ -37,7 +37,7 @@ function download_mercator_python(pathCMC,user,password,mercator_type, ...
 %  Updated    20-Aug-2008 by Matthieu Caillaud & P. Marchesiello
 %  Update     23-Oct-2020 by Gildas Cambon
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-download_raw_data=0;
+download_raw_data=1;
 convert_raw2crocotools=1; % convert -> crocotools format data
 %
 % Set variable names according to mercator type data

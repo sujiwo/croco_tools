@@ -6,8 +6,48 @@ classdef ncobject < handle
         function self = ncobject(vargin)
         end
 
+
+        function varargout = subsref(self, other)
+            s = other(1);
+            type = s.type;
+            subs = s.subs;
+            other(1) = [];
+
+            switch type
+                case '.'
+                    if ischar(subs)
+                        if isprop(self, subs)
+                            res = self.(subs); return, end
+                        if ismethod(self, subs)
+                            args = tstruct(1).subs;
+                            if length(args)>0
+                                res = self.(subs)(args{:});
+                            else
+                                if subs=='redef'|subs=='endef'|subs=='close'
+                                    self.(subs)();
+                                else
+                                    res = self.(subs)();
+                                end
+                            end
+                            return
+                        else
+                            res = att(self, subs).get();
+                            subsref(res, other);
+                        end
+                    else
+                        error("Invalid subscript");
+                    end
+                case '{}'
+
+                case '()'
+
+                otherwise
+                    error ("Unsupported type");
+            end
+        end
+
         % Subsref dispatcher
-        function res = subsref(self, tstruct)
+        function res = subsrefX(self, tstruct)
             s = tstruct(1);
             type = s.type;
             subs = s.subs;
@@ -20,7 +60,15 @@ classdef ncobject < handle
                             res = self.(subs); return, end
                         if ismethod(self, subs)
                             args = tstruct(1).subs;
-                            res = self.(subs)(args{:});
+                            if length(args)>0
+                                res = self.(subs)(args{:});
+                            else 
+                                if subs=='redef'|subs=='endef'|subs=='close'
+                                    self.(subs)();
+                                else
+                                    res = self.(subs)(); 
+                                end
+                            end
                             return
                         else
                             res = att(self, subs).get();
@@ -74,15 +122,33 @@ classdef ncobject < handle
                 case '{}'
                     if ismethod(self, 'var')
                         subs = subs{1};
-                        v = var(self, subs);
-                        indices = operator(1).subs;
-                        v.set(indices, input);
-                        res = self;
-                        return
+                        try
+                            v = var(self, subs);
+                            % Second-level subsasgn. No recursive
+                            switch operator.type
+                                case '()'
+                                    indices = operator(1).subs;
+                                    v.set(indices, input);
+                                case '.'
+                                    attr = att(v, operator(1).subs);
+                                    attr.set(input);
+                                otherwise
+                            end
+                        catch me
+                            % Create variable
+                            v = self.createVariable(subs, input);
+                        end
                     else
                         error("### Unsupported variable index")
                     end
+                case '()'
+                    if ismethod(self, 'createDimension')
+                        att = self.createDimension(subs{1}, input);
+                    else
+                        error("### Unable to create dimension: not a netCDF object")
+                    end
             end
+            res = self;
         end
     end
 end
