@@ -44,7 +44,7 @@
 %      used by make_grid.m (and others..)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-isoctave=exist('octave_config_info');
+isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
 %
 %  CROCO title names and directories
 %
@@ -572,5 +572,6 @@ DIAG_dir = [CROCOTOOLS_dir,'Diagnostic_tools/'];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+if isOctave, pkg load netcdf; end
 netcdf.setDefaultFormat('FORMAT_NETCDF4');
 %

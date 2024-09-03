@@ -16,6 +16,9 @@ Remember you can also subscribe at CROCO forum at
 https://forum.croco-ocean.org
 
 
-
+##Major Changes
+1. Parallelization (currently supports Matlab Parallel Toolbox)
+2. Restart/continue preprocessing job
+3. Octave compatibility (on-going)
 
 
