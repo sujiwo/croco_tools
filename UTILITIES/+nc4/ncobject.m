@@ -7,47 +7,8 @@ classdef ncobject < handle
         end
 
 
-        function varargout = subsrefZ(self, other)
-            s = other(1);
-            type = s.type;
-            subs = s.subs;
-            other(1) = [];
-
-            switch type
-                case '.'
-                    if ischar(subs)
-                        if isprop(self, subs)
-                            res = self.(subs); return, end
-                        if ismethod(self, subs)
-                            args = tstruct(1).subs;
-                            if length(args)>0
-                                res = self.(subs)(args{:});
-                            else
-                                if subs=='redef'|subs=='endef'|subs=='close'
-                                    self.(subs)();
-                                else
-                                    res = self.(subs)();
-                                end
-                            end
-                            return
-                        else
-                            res = att(self, subs).get();
-                            subsref(res, other);
-                        end
-                    else
-                        error("Invalid subscript");
-                    end
-                case '{}'
-
-                case '()'
-
-                otherwise
-                    error ("Unsupported type");
-            end
-        end
-
         % Subsref dispatcher
-        function varargout = subsrefX(self, tstruct)
+        function varargout = subsref(self, tstruct)
             s = tstruct(1);
             type = s.type;
             subs = s.subs;
@@ -57,21 +18,24 @@ classdef ncobject < handle
                 case '.'
                     if ischar(subs)
                         if isprop(self, subs)
-                            res = self.(subs); return, end
+                            varargout = {};
+                            varargout{1} = self.(subs);
+                            return
+                        end
                         if ismethod(self, subs)
                             args = tstruct(1).subs;
                             if length(args)>0
-                                res = self.(subs)(args{:});
+                                varargout{:} = self.(subs)(args{:});
                             else 
                                 if subs=='redef'|subs=='endef'|subs=='close'
                                     self.(subs)();
                                 else
-                                    res = self.(subs)(); 
+                                    varargout = self.(subs)(); 
                                 end
                             end
                             return
                         else
-                            res = att(self, subs).get();
+                            varargout = att(self, subs).get();
                             return
                         end
                     end
@@ -80,17 +44,18 @@ classdef ncobject < handle
                         subs = subs{1};
                         v = var(self, subs);
                         if isempty(tstruct)
-                            res = v; return, end
-                        res = subsref(v, tstruct);
+                            varargout = v; return, end
+                        varargout = subsref(v, tstruct);
                     else
                         error("### Unsupported indexing method")
                     end
                 case '()'
                     if ismethod(self, 'get')
-                        res = get(self, subs{:});
+                        varargout = get(self, subs{:});
                         return
-                    else
-                        error("### Unsupported reference")
+                    elseif ismethod(self, 'dim')
+                        a = dim(self, subs{1});
+                        subsref(a, tstruct);
                     end
             end
         end

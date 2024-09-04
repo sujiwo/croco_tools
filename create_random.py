@@ -23,6 +23,8 @@ def create_random_file(size1,*args):
         dims.append(dim)
     v = fd.createVariable('r', rand_mat.dtype, dimensions=dims)
     v[:] = rand_mat
+    v.title = 'Randomized matrix'
+    v.unit = 'metre'
     fd.title = "Random matrix"
     fd.close();
 
