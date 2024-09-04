@@ -7,7 +7,7 @@ classdef ncobject < handle
         end
 
 
-        function varargout = subsref(self, other)
+        function varargout = subsrefZ(self, other)
             s = other(1);
             type = s.type;
             subs = s.subs;
@@ -47,7 +47,7 @@ classdef ncobject < handle
         end
 
         % Subsref dispatcher
-        function res = subsrefX(self, tstruct)
+        function varargout = subsrefX(self, tstruct)
             s = tstruct(1);
             type = s.type;
             subs = s.subs;

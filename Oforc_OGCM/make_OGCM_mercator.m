@@ -86,7 +86,7 @@ end
 %
 % Get the model grid
 %
-nc=nc4.netcdf(grdname);
+nc=netcdf(grdname);
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 angle=nc{'angle'}(:);
