@@ -101,19 +101,29 @@ classdef netcdf < nc4.ncobject
                         varargout = {};
                         varargout{1} = self.(subs);
                         return
-                    end
-                    if ismethod(self, subs)
-                        args = other(1).subs;
+                    
+                    elseif ismethod(self, subs)
+                        % Matlab allows a class method to be called like a.method
+                        % (without parenthesis).
+                        % We don't allow that
+                        args = input(1).subs;
                         if length(args)>0
-                            varargout{:} = self.(subs)(args{:});
+                            res = self.(subs)(args{:});
                         else
-                            if subs=='redef'|subs=='endef'|subs=='close'
+                            if strcmp(subs,'redef')||strcmp(subs,'endef')||strcmp(subs,'close')
                                 self.(subs)();
+                                return;
                             else
-                                varargout = self.(subs)();
+                                res = self.(subs)();
                             end
                         end
-                        return
+                        if (length(input)>1 && isa(res,'nc4.ncobject'))
+                            % Shift arguments
+                            input(1) = [];
+                            varargout{:} = subsref(res, input);
+                        else
+                            varargout{:} = res;
+                        end
                     else
                         varargout{:} = att(self, subs).get();
                         return
@@ -121,15 +131,15 @@ classdef netcdf < nc4.ncobject
                 case '{}'
                     subs = subs{1};
                     v = var(self, subs);
-                    if isempty(other)
+                    if isempty(input)
                         varargout{:} = v; return, end
-                    varargout = subsref(v, other);
+                    varargout{:} = subsref(v, input);
                 case '()'
-                    subs = subs{1}
+                    subs = subs{1};
                     d = dim(self, subs);
-                    if isempty(other)
+                    if isempty(input)
                         varargout{:} = d; return, end
-                    varargout = subsref(d, other);
+                    varargout = subsref(d, input);
                 otherwise
                     error("### Unsupported indexing")
             end
