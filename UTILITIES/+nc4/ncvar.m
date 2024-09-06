@@ -291,6 +291,7 @@ classdef ncvar < nc4.ncobject
             operator(1)=[];
             
             switch type
+                % Attribute
                 case '.'
                     try
                         a = self.att(subs);

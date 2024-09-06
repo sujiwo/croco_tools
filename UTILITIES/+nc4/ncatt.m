@@ -8,6 +8,7 @@ classdef ncatt < nc4.ncobject
 
     methods
         function s = ncatt(ncId, varId, name)
+            name = nc4.ncatt.mangle(name);
             s@nc4.ncobject();
             s.ncid = ncId;
             s.varId = varId;
@@ -46,6 +47,15 @@ classdef ncatt < nc4.ncobject
             netcdf.putAtt(ncid, varid, name, -1);
             r = nc4.ncatt(ncid, varid, name);
         end
+
+        function attName = mangle(attname)
+            if strcmp(attname,'FillValue_')
+                attName = '_FillValue';
+            else
+                attName = attname;
+            end
+        end
+
     end
 
 end                 
