@@ -284,7 +284,7 @@ classdef ncvar < nc4.ncobject
             end
         end
     
-        function subsasgn(self, operator, input)
+        function res = subsasgn(self, operator, input)
             s = operator(1);
             type = s.type;
             subs = s.subs;
@@ -292,11 +292,19 @@ classdef ncvar < nc4.ncobject
             
             switch type
                 case '.'
+                    try
+                        a = self.att(subs);
+                        a.set(input);
+                    catch me
+                        self.createAttribute(subs, input);
+                    end
                 case '()'
-                    s = self.set(subs, input);
+                    self.set(subs, input);
                 otherwise
                     error("Unsupported mode of assignment")
             end
+
+            res = self;
         end
 
     end
