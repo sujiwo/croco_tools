@@ -144,6 +144,46 @@ classdef netcdf < nc4.ncobject
                     error("### Unsupported indexing")
             end
         end
+
+        function res = subsasgn(self, operator, input)
+            s = operator(1);
+            type = s.type;
+            subs = s.subs;
+            operator(1) = [];
+
+            switch type
+                case '.'
+                    if isprop(self, subs)
+                        self.(subs) = input;
+                    elseif ismethod(self, subs)
+                        args = operator(1).subs;
+                        res = self.(subs)(args{:});
+                        if (isa(res, 'nc4.ncobject'))
+                            operator(1)=[];
+                            subsasgn(res, operator, input);
+                        end
+                    else
+                        try
+                            res = att(self, subs).get();
+                        catch me
+                            % we let on-the-fly attribute creation
+                            res = nc4.ncatt.create(self.id, subs);
+                        end
+                        res.set(input);
+                    end
+                case '{}'
+                    v = self.var(subs{1});
+                    subsasgn(v, operator, input);
+                case '()'
+                    dm = self.dim(subs{1});
+                    subsasgn(dm, operator, input);
+                otherwise
+                    error("Unsupported assignment")
+            end
+
+            res = self;
+        end
+
     end
 
     methods(Static)

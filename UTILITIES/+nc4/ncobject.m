@@ -61,7 +61,7 @@ classdef ncobject < handle
         end
 
         % subsasgn dispatcher
-        function res = subsasgn(self, operator, input)
+        function res = subsasgnX(self, operator, input)
             s = operator(1);
             type = s.type;
             subs = s.subs;

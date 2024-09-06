@@ -30,6 +30,7 @@ classdef ncatt < nc4.ncobject
         end
 
         function subsasgn(self, st, val)
+            self.set(val);
         end
 
 %        function disp(self)

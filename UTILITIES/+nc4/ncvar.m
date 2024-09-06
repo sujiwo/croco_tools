@@ -284,6 +284,21 @@ classdef ncvar < nc4.ncobject
             end
         end
     
+        function subsasgn(self, operator, input)
+            s = operator(1);
+            type = s.type;
+            subs = s.subs;
+            operator(1)=[];
+            
+            switch type
+                case '.'
+                case '()'
+                    s = self.set(subs, input);
+                otherwise
+                    error("Unsupported mode of assignment")
+            end
+        end
+
     end
 
     methods (Static)
