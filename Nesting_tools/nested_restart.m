@@ -41,9 +41,9 @@ namepisces={''};
 unitpisces={''};
 biol=0;
 pisces=0;
-%biol_NPZD=0;
-%biol_NPZD_wO2=0;
-%biol_N2PZD2=0;
+biol_NPZD=0;
+biol_NPZD_wO2=0;
+biol_N2PZD2=0;
 
 if nvar <= 37
     disp(['No biology'])

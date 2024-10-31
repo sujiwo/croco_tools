@@ -95,11 +95,11 @@ ncclim('eta_rho') = Mp;
 ncclim('s_rho') = N;
 ncclim('s_w') = Np;
 ncclim('tracer') = 2;
-ncclim('tclm_time') = size(ttime);
-ncclim('sclm_time') = size(stime);
-ncclim('uclm_time') = size(utime);
-ncclim('vclm_time') = size(vtime);
-ncclim('ssh_time') = size(sshtime);
+ncclim('tclm_time') = length(ttime);
+ncclim('sclm_time') = length(stime);
+ncclim('uclm_time') = length(utime);
+ncclim('vclm_time') = length(vtime);
+ncclim('ssh_time') = length(sshtime);
 
 if biol
     for k=1:length(timebiol)
@@ -322,8 +322,8 @@ ncclim{'Tcline'}(:) =  Tcline;
 ncclim{'hc'}(:) =  hc;
 ncclim{'s_rho'}(:) =  s_rho;
 ncclim{'Cs_rho'}(:) =  Cs_rho;
-ncclim{'tclm_time'}(:) =  ttime;
 ncclim{'sclm_time'}(:) =  stime;
+ncclim{'tclm_time'}(:) =  ttime;
 ncclim{'uclm_time'}(:) = utime ;
 ncclim{'vclm_time'}(:) = vtime ;
 ncclim{'ssh_time'}(:) = sshtime;
