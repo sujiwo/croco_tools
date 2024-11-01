@@ -76,6 +76,15 @@ ssst = nc{'sss_time'}(:);
 sssc = nc{'sss_time'}.cycle_length(:);
 srft = nc{'srf_time'}(:);
 srfc = nc{'srf_time'}.cycle_length(:);
+tide_period = nc{'tide_period'}(:);
+tide_Ephase = nc{'tide_Ephase'}(:);
+tide_Eamp = nc{'tide_Eamp'}(:);
+tide_Cmin = nc{'tide_Cmin'}(:);
+tide_Cmax = nc{'tide_Cmax'}(:);
+tide_Cangle = nc{'tide_Cangle'}(:);
+tide_Cphase = nc{'tide_Cphase'}(:);
+tide_Pamp = nc{'tide_Pamp'}(:);
+tide_Pphase = nc{'tide_Pphase'}(:);
 
 result=close(nc);
 %
