@@ -45,7 +45,7 @@ data_z=zeros(Nd,M,L);
 %
 % Extract a z variable
 %
-for k=1:Nd
+parfor k=1:Nd
   disp(['  computing depth = ',num2str(depth(k))])
   data2d=m1.*vinterp(data_old,z_old,depth(k));
 %

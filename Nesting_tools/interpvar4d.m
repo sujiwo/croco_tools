@@ -45,13 +45,26 @@ if ~isempty(mask)
   end
   mask=mask(jmin:jmax,imin:imax);
 end
+
+tempvar = cell(N);
+tempnpvar = cell(N);
+
 for zindex=1:N
-  var_par=squeeze(np{varname}(tindex,zindex,jmin:jmax,imin:imax));
+    tempnpvar{zindex}=np{varname}(tindex,zindex,jmin:jmax,imin:imax);
+end
+
+parfor zindex=1:N
+  var_par=squeeze(tempnpvar{zindex});
   if ~isempty(mask)
     var_par(mask==0)=griddata(I(mask==1),J(mask==1),var_par(mask==1),...
                               I(mask==0),J(mask==0),'nearest');
   end
-  nc{varname}(tindex,zindex,:,:)=interp2(igrid_par,jgrid_par,var_par,...
-                                         igrid_child,jgrid_child,'cubic');
+  tempvar{zindex} = interp2(igrid_par,jgrid_par,var_par,...
+                   igrid_child,jgrid_child,'cubic');
 end
+
+for zindex=1:N
+    nc{varname}(tindex,zindex,:,:) = tempvar{zindex};
+end
+
 return
