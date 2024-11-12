@@ -1,4 +1,5 @@
-function  create_nestedforcing(frcname,parentname,grdname,title,smst,...
+function  create_nestedforcing(parentnc, ...
+                         frcname,parentname,grdname,title,smst,...
                          shft,swft,srft,sstt,ssst,smsc,...
                          shfc,swfc,srfc,sstc,sssc)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -40,6 +41,17 @@ Lp=L+1;
 Mp=M+1;
 nw = netcdf(frcname, 'clobber');
 redef(nw);
+
+tide_period = parentnc{'tide_period'}(:);
+tide_Ephase = parentnc{'tide_Ephase'}(:);
+tide_Eamp = parentnc{'tide_Eamp'}(:);
+tide_Cmin = parentnc{'tide_Cmin'}(:);
+tide_Cmax = parentnc{'tide_Cmax'}(:);
+tide_Cangle = parentnc{'tide_Cangle'}(:);
+tide_Cphase = parentnc{'tide_Cphase'}(:);
+tide_Pamp = parentnc{'tide_Pamp'}(:);
+tide_Pphase = parentnc{'tide_Pphase'}(:);
+
 %
 %  Create dimensions
 %
@@ -57,6 +69,8 @@ nw('swf_time') = length(swft);
 nw('sst_time') = length(sstt);
 nw('srf_time') = length(srft);
 nw('sss_time') = length(ssst);
+nw('tide_period') = length(tide_period);
+
 %
 %  Create variables and attributes
 %
@@ -187,6 +201,60 @@ nw{'swrad'}.positive = 'downward flux, heating';
 nw{'swrad'}.negative = ncchar('upward flux, cooling');
 nw{'swrad'}.negative = 'upward flux, cooling';
 
+nw{'tide_period'} = ncdouble('tide_period');
+nw{'tide_period'}.long_name = ncchar('Tide angular period');
+nw{'tide_period'}.long_name = 'Tide angular period';
+nw{'tide_period'}.units = ncchar('Hours');
+nw{'tide_period'}.units = 'Hours';
+
+nw{'tide_Ephase'} = ncdouble('tide_period', 'eta_rho', 'xi_rho');
+nw{'tide_Ephase'}.long_name = ncchar('Tidal elevation phase angle');
+nw{'tide_Ephase'}.long_name = 'Tidal elevation phase angle';
+nw{'tide_Ephase'}.units = ncchar('Degrees');
+nw{'tide_Ephase'}.units = 'Degrees';
+
+nw{'tide_Eamp'} = ncdouble('tide_period', 'eta_rho', 'xi_rho');
+nw{'tide_Eamp'}.long_name = ncchar('Tidal elevation amplitude');
+nw{'tide_Eamp'}.long_name = 'Tidal elevation amplitude';
+nw{'tide_Eamp'}.units = ncchar('Meter');
+nw{'tide_Eamp'}.units = 'Meter';
+
+nw{'tide_Cmin'} = ncdouble('tide_period', 'eta_rho', 'xi_rho');
+nw{'tide_Cmin'}.long_name = ncchar('Tidal current ellipse semi-minor axis');
+nw{'tide_Cmin'}.long_name = 'Tidal current ellipse semi-minor axis';
+nw{'tide_Cmin'}.units = ncchar('Meter second-1');
+nw{'tide_Cmin'}.units = 'Meter second-1';
+
+nw{'tide_Cmax'} = ncdouble('tide_period', 'eta_rho', 'xi_rho');
+nw{'tide_Cmax'}.long_name = ncchar('Tidal current, ellipse semi-major axis');
+nw{'tide_Cmax'}.long_name = 'Tidal current, ellipse semi-major axis';
+nw{'tide_Cmax'}.units = ncchar('Meter second-1');
+nw{'tide_Cmax'}.units = 'Meter second-1';
+
+nw{'tide_Cangle'} = ncdouble('tide_period', 'eta_rho', 'xi_rho');
+nw{'tide_Cangle'}.long_name = ncchar('Tidal current inclination angle');
+nw{'tide_Cangle'}.long_name = 'Tidal current inclination angle';
+nw{'tide_Cangle'}.units = ncchar('Degrees between semi-major axis and East');
+nw{'tide_Cangle'}.units = 'Degrees between semi-major axis and East';
+
+nw{'tide_Cphase'} = ncdouble('tide_period', 'eta_rho', 'xi_rho');
+nw{'tide_Cphase'}.long_name = ncchar('Tidal current phase angle');
+nw{'tide_Cphase'}.long_name = 'Tidal current phase angle';
+nw{'tide_Cphase'}.units = ncchar('Degrees');
+nw{'tide_Cphase'}.units = 'Degrees';
+
+nw{'tide_Pamp'} = ncdouble('tide_period', 'eta_rho', 'xi_rho');
+nw{'tide_Pamp'}.long_name = ncchar('Tidal potential amplitude');
+nw{'tide_Pamp'}.long_name = 'Tidal potential amplitude';
+nw{'tide_Pamp'}.units = ncchar('Meter');
+nw{'tide_Pamp'}.units = 'Meter';
+
+nw{'tide_Pphase'} = ncdouble('tide_period', 'eta_rho', 'xi_rho');
+nw{'tide_Pphase'}.long_name = ncchar('Tidal potential phase angle');
+nw{'tide_Pphase'}.long_name = 'Tidal potential phase angle';
+nw{'tide_Pphase'}.units = ncchar('Degrees');
+nw{'tide_Pphase'}.units = 'Degrees';
+
 endef(nw);
 
 %
@@ -212,6 +280,8 @@ nw{'swf_time'}(:) = swft;
 nw{'sst_time'}(:) = sstt;
 nw{'srf_time'}(:) = srft;
 nw{'sss_time'}(:) = ssst;
+
+nw{'tide_period'}(:) = tide_period;
 
 close(nw);
 return

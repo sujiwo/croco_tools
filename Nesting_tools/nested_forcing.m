@@ -76,25 +76,19 @@ ssst = nc{'sss_time'}(:);
 sssc = nc{'sss_time'}.cycle_length(:);
 srft = nc{'srf_time'}(:);
 srfc = nc{'srf_time'}.cycle_length(:);
-tide_period = nc{'tide_period'}(:);
-tide_Ephase = nc{'tide_Ephase'}(:);
-tide_Eamp = nc{'tide_Eamp'}(:);
-tide_Cmin = nc{'tide_Cmin'}(:);
-tide_Cmax = nc{'tide_Cmax'}(:);
-tide_Cangle = nc{'tide_Cangle'}(:);
-tide_Cphase = nc{'tide_Cphase'}(:);
-tide_Pamp = nc{'tide_Pamp'}(:);
-tide_Pphase = nc{'tide_Pphase'}(:);
+tide_period = nc{'tide_period'}(:)
 
-result=close(nc);
 %
 % Create the forcing file
 %
 disp(' ')
 disp(' Create the forcing file...')
-create_nestedforcing(child_frc,parent_frc,child_grd,title,smst,...
-                         shft,swft,srft,sstt,ssst,smsc,...
-                         shfc,swfc,srfc,sstc,sssc)
+create_nestedforcing(nc, ...
+                     child_frc,parent_frc,child_grd,title,smst,...
+                     shft,swft,srft,sstt,ssst,smsc,...
+                     shfc,swfc,srfc,sstc,sssc)
+close(nc);
+
 %
 % parent indices
 %
@@ -146,6 +140,18 @@ disp('shortwave radiation...')
 for tindex=1:length(srft)
   interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'swrad',mask,tindex)
 end
+disp('tides...')
+for tindex=1:length(tide_period)
+  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'tide_Ephase',mask, tindex)
+  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'tide_Eamp',mask, tindex)
+  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'tide_Cmin',mask, tindex)
+  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'tide_Cmax',mask, tindex)
+  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'tide_Cangle',mask, tindex)
+  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'tide_Cphase',mask, tindex)
+  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'tide_Pamp',mask, tindex)
+  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'tide_Pphase',mask, tindex)
+end
+
 result=close(np);
 result=close(nc);
 disp(' ')
