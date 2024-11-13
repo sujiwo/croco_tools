@@ -45,7 +45,7 @@ biol_NPZD=0;
 biol_NPZD_wO2=0;
 biol_N2PZD2=0;
 
-if nvar <= 37
+if nvar <= 41
     disp(['No biology'])
 elseif nvar == 42
     %biol_NPZD=1;
@@ -216,6 +216,8 @@ for tindex=1:length(thetime)
   interpvar4d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'temp',mask,tindex,N)
   disp('salt...')
   interpvar4d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'salt',mask,tindex,N)
+  disp('hbl...')
+  interpvar3d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'hbl',mask,tindex)
   %
   if (biol==1)
     for k=1:length(namebiol)

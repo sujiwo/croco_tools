@@ -112,6 +112,7 @@ ncrst{'vbar'} = ncdouble('time','eta_v','xi_rho');
 ncrst{'zeta'} = ncdouble('time','eta_rho','xi_rho');
 ncrst{'temp'} = ncdouble('time','s_rho','eta_rho','xi_rho');
 ncrst{'salt'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+ncrst{'hbl'} = ncdouble('time', 'eta_rho', 'xi_rho');
 %
 %
 if biol == 1
@@ -240,6 +241,12 @@ ncrst{'salt'}.long_name = ncchar('salinity');
 ncrst{'salt'}.long_name = 'salinity';
 ncrst{'salt'}.units = ncchar('PSU');
 ncrst{'salt'}.units = 'PSU';
+%
+ncrst{'hbl'}.long_name = 'depth of planetary boundary layer';
+ncrst{'hbl'}.units = 'meter';
+ncrst{'hbl'}.field = 'hbl, scalar, series';
+ncrst{'hbl'}.standard_name = 'ocean_mixed_layer_thickness_defined_by_mixing_scheme';
+ncrst{'hbl'}.coordinates = 'lat_rho lon_rho';
 
 %
 if  biol == 1
