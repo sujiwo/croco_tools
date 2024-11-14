@@ -27,7 +27,7 @@ function nested_bulk(child_grd,parent_blk,child_blk)
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-extrapmask=0;
+extrapmask=1;
 %
 % Title
 %

@@ -27,7 +27,7 @@ function nested_forcing(child_grd,parent_frc,child_frc)
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-extrapmask=0;
+extrapmask=1;
 %
 % Title
 %

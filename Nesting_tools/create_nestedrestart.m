@@ -113,6 +113,11 @@ ncrst{'zeta'} = ncdouble('time','eta_rho','xi_rho');
 ncrst{'temp'} = ncdouble('time','s_rho','eta_rho','xi_rho');
 ncrst{'salt'} = ncdouble('time','s_rho','eta_rho','xi_rho');
 ncrst{'hbl'} = ncdouble('time', 'eta_rho', 'xi_rho');
+ncrst{'hbbl'} = ncdouble('time', 'eta_rho', 'xi_rho');
+ncrst{'rufrc'} = ncdouble('time', 'eta_rho', 'xi_u');
+ncrst{'rvfrc'} = ncdouble('time', 'eta_v', 'xi_rho');
+ncrst{'dRdx'} = ncdouble('time', 's_rho', 'eta_rho', 'xi_u');
+ncrst{'dRde'} = ncdouble('time', 's_rho', 'eta_v', 'xi_rho');
 %
 %
 if biol == 1
@@ -247,7 +252,35 @@ ncrst{'hbl'}.units = 'meter';
 ncrst{'hbl'}.field = 'hbl, scalar, series';
 ncrst{'hbl'}.standard_name = 'ocean_mixed_layer_thickness_defined_by_mixing_scheme';
 ncrst{'hbl'}.coordinates = 'lat_rho lon_rho';
-
+%
+ncrst{'hbbl'}.long_name = 'depth of bottom boundary layer';
+ncrst{'hbbl'}.units = 'meter';
+ncrst{'hbbl'}.field = 'hbbl, scalar, series';
+ncrst{'hbbl'}.coordinates = 'lat_rho lon_rho';
+%
+ncrst{'rufrc'}.long_name = 'barotropic forcing terms';
+ncrst{'rufrc'}.units = 'meter second-2';
+ncrst{'rufrc'}.field = 'rufrc, scalar, series';
+ncrst{'rufrc'}.standard_name = 'barotropic_forcing_terms';
+ncrst{'rufrc'}.coordinates = 'lat_u lon_u';
+%
+ncrst{'rvfrc'}.long_name = 'barotropic forcing terms';
+ncrst{'rvfrc'}.units = 'meter second-2';
+ncrst{'rvfrc'}.field = 'rvfrc, scalar, series';
+ncrst{'rvfrc'}.standard_name = 'barotropic_forcing_terms';
+ncrst{'rvfrc'}.coordinates = 'lat_v lon_v';
+%
+ncrst{'dRdx'}.long_name = 'Density gradient';
+ncrst{'dRdx'}.units = 'kg m-4';
+ncrst{'dRdx'}.field = 'dRdx, scalar, series';
+ncrst{'dRdx'}.standard_name = 'Density_gradient';
+ncrst{'dRdx'}.coordinates = 'lat_u lon_u';
+%
+ncrst{'dRde'}.long_name = 'Density gradient';
+ncrst{'dRde'}.units = 'kg m-4';
+ncrst{'dRde'}.field = 'dRde, scalar, series';
+ncrst{'dRde'}.standard_name = 'Density_gradient';
+ncrst{'dRde'}.coordinates = 'lat_v lon_v';
 %
 if  biol == 1
   for k=1:length(namebiol)

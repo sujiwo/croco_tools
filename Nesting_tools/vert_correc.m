@@ -85,6 +85,18 @@ zvnew=0.5*(zrnew(:,1:end-1,:)+zrnew(:,2:end,:));
 %
 % perform the modifications
 %
+if ~isempty(nc{'dRdx'})
+  disp('dRdx...')
+  nc{'dRdx'}(tindex,:,:,:)=change_sigma(lonu,latu,masku,...
+                        squeeze(nc{'dRdx'}(tindex,:,:,:)),...
+                        zuold,zunew);
+end
+if ~isempty(nc{'dRde'})
+  disp('dRde...')
+  nc{'dRde'}(tindex,:,:,:)=change_sigma(lonv,latv,maskv,...
+                        squeeze(nc{'dRde'}(tindex,:,:,:)),...
+                        zvold,zvnew);
+end
 disp('u...')
 nc{'u'}(tindex,:,:,:)=change_sigma(lonu,latu,masku,...
 				   squeeze(nc{'u'}(tindex,:,:,:)),...
@@ -101,6 +113,7 @@ disp('salt...')
 nc{'salt'}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
 				      squeeze(nc{'salt'}(tindex,:,:,:)),...
 				      zrold,zrnew);
+
 %
 if (biol==1)
   disp('vert_correc for biology variables')

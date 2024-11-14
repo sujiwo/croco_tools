@@ -120,6 +120,13 @@ ncini{'vbar'} = ncdouble('time','eta_v','xi_v') ;
 ncini{'zeta'} = ncdouble('time','eta_rho','xi_rho') ;
 ncini{'temp'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 ncini{'salt'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+ncini{'hbl'} = ncdouble('time', 'eta_rho', 'xi_rho');
+ncini{'hbbl'} = ncdouble('time', 'eta_rho', 'xi_rho');
+ncini{'rufrc'} = ncdouble('time', 'eta_rho', 'xi_u');
+ncini{'rvfrc'} = ncdouble('time', 'eta_v', 'xi_rho');
+ncini{'dRdx'} = ncdouble('time', 's_rho', 'eta_rho', 'xi_u');
+ncini{'dRde'} = ncdouble('time', 's_rho', 'eta_v', 'xi_rho');
+
 if biol==1
     for k=1:length(namebiol)
         ncini{char(namebiol(k))}= ncdouble('time','s_rho','eta_rho','xi_rho');
@@ -242,6 +249,41 @@ ncini{'salt'}.units = ncchar('PSU');
 ncini{'salt'}.units = 'PSU';
 ncini{'salt'}.field = ncchar('salinity, scalar, series');
 ncini{'salt'}.field = 'salinity, scalar, series';
+%
+ncini{'hbl'}.long_name = 'depth of planetary boundary layer';
+ncini{'hbl'}.units = 'meter';
+ncini{'hbl'}.field = 'hbl, scalar, series';
+ncini{'hbl'}.standard_name = 'ocean_mixed_layer_thickness_defined_by_mixing_scheme';
+ncini{'hbl'}.coordinates = 'lat_rho lon_rho';
+%
+ncini{'hbbl'}.long_name = 'depth of bottom boundary layer';
+ncini{'hbbl'}.units = 'meter';
+ncini{'hbbl'}.field = 'hbbl, scalar, series';
+ncini{'hbbl'}.coordinates = 'lat_rho lon_rho';
+%
+ncini{'rufrc'}.long_name = 'barotropic forcing terms';
+ncini{'rufrc'}.units = 'meter second-2';
+ncini{'rufrc'}.field = 'rufrc, scalar, series';
+ncini{'rufrc'}.standard_name = 'barotropic_forcing_terms';
+ncini{'rufrc'}.coordinates = 'lat_u lon_u';
+%
+ncini{'rvfrc'}.long_name = 'barotropic forcing terms';
+ncini{'rvfrc'}.units = 'meter second-2';
+ncini{'rvfrc'}.field = 'rvfrc, scalar, series';
+ncini{'rvfrc'}.standard_name = 'barotropic_forcing_terms';
+ncini{'rvfrc'}.coordinates = 'lat_v lon_v';
+%
+ncini{'dRdx'}.long_name = 'Density gradient';
+ncini{'dRdx'}.units = 'kg m-4';
+ncini{'dRdx'}.field = 'dRdx, scalar, series';
+ncini{'dRdx'}.standard_name = 'Density_gradient';
+ncini{'dRdx'}.coordinates = 'lat_u lon_u';
+%
+ncini{'dRde'}.long_name = 'Density gradient';
+ncini{'dRde'}.units = 'kg m-4';
+ncini{'dRde'}.field = 'dRde, scalar, series';
+ncini{'dRde'}.standard_name = 'Density_gradient';
+ncini{'dRde'}.coordinates = 'lat_v lon_v';
 %
 if biol
   for k=1:length(namebiol)
