@@ -96,7 +96,7 @@ ncini('eta_rho') = Mp;
 ncini('s_rho') = N;
 ncini('s_w') = Np;
 ncini('tracer') = 2;
-ncini('time') = 0;
+ncini('time') = length(time);
 ncini('one') = 1;
 %
 %  Create variables
