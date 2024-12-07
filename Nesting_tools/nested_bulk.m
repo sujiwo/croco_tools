@@ -98,50 +98,65 @@ disp(' ')
 disp(' Do the interpolations...')                 
 np=netcdf(parent_blk);
 nc=netcdf(child_blk,'write');
+
 disp('tair...')
-for tindex=1:length(bulkt)
-  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'tair',mask,tindex)
+curvar = np{'tair'}(:);
+varchild = zeros(length(bulkt), length(ichildgrd_r), length(jchildgrd_r));
+parfor tindex=1:length(bulkt)
+  varchild(tindex,:,:) = interpvar3d_par(curvar,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,mask,tindex);
 end
+nc{'tair'}=varchild;
+
 disp('rhum...')
 for tindex=1:length(bulkt)
   interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'rhum',mask,tindex)
 end
+
 disp('prate...')
 for tindex=1:length(bulkt)
   interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'prate',mask,tindex)
 end
+
 disp('wspd...')
 for tindex=1:length(bulkt)
   interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'wspd',mask,tindex)
 end
+
 disp('radlw...')
 for tindex=1:length(bulkt)
   interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'radlw',mask,tindex)
 end
+
 disp('radlw_in...')
 for tindex=1:length(bulkt)
   interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'radlw_in',mask,tindex)
 end
+
 disp('radsw...')
 for tindex=1:length(bulkt)
   interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'radsw',mask,tindex)
 end
+
 disp('uwnd...')
 for tindex=1:length(bulkt)
   interpvar3d(np,nc,igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,'uwnd',mask,tindex)
 end
+
 disp('vwnd...')
 for tindex=1:length(bulkt)
   interpvar3d(np,nc,igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,'vwnd',mask,tindex)
 end
+
 disp('sustr...')
 for tindex=1:length(bulkt)
   interpvar3d(np,nc,igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,'sustr',mask,tindex)
 end
+
 disp('svstr...')
 for tindex=1:length(bulkt)
   interpvar3d(np,nc,igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,'svstr',mask,tindex)
 end
+
 result=close(np);
 result=close(nc);
 disp(' ')
