@@ -101,11 +101,13 @@ nc=netcdf(child_blk,'write');
 
 disp('tair...')
 curvar = np{'tair'}(:);
-varchild = zeros(length(bulkt), length(ichildgrd_r), length(jchildgrd_r));
+varchild = zeros(size(nc{'tair'}));
 parfor tindex=1:length(bulkt)
-  varchild(tindex,:,:) = interpvar3d_par(curvar,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,mask,tindex);
+  varchild(tindex,:,:) = interpvar3d_par(curvar,...
+      igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,...
+      'tair',mask,tindex);
 end
-nc{'tair'}=varchild;
+nc{'tair'}(:)=varchild;
 
 disp('rhum...')
 for tindex=1:length(bulkt)
