@@ -1,6 +1,6 @@
-var_child = function interpvar3d_par(var_parent,igrid_par,jgrid_par,...
+function var_child = interpvar3d_par(var_parent,igrid_par,jgrid_par,...
                    igrid_child,jgrid_child,...
-                   mask,tindex)
+                   varname,mask,tindex)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Interpole a 3D variable on a nested grid, parallel version
@@ -52,3 +52,4 @@ end
 var_child = interp2(igrid_par,jgrid_par,var_par,...
                                 igrid_child,jgrid_child,'cubic');
 
+end

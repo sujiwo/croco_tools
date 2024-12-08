@@ -110,54 +110,104 @@ end
 nc{'tair'}(:)=varchild;
 
 disp('rhum...')
-for tindex=1:length(bulkt)
-  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'rhum',mask,tindex)
+curvar = np{'rhum'}(:);
+varchild = zeros(size(nc{'rhum'}));
+parfor tindex=1:length(bulkt)
+  varchild(tindex,:,:) = interpvar3d_par(curvar,...
+      igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,...
+      'rhum',mask,tindex);
 end
+nc{'rhum'}(:)=varchild;
 
 disp('prate...')
-for tindex=1:length(bulkt)
-  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'prate',mask,tindex)
+curvar = np{'prate'}(:);
+varchild = zeros(size(nc{'prate'}));
+parfor tindex=1:length(bulkt)
+  varchild(tindex,:,:) = interpvar3d_par(curvar,...
+      igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,...
+      'prate',mask,tindex);
 end
+nc{'prate'}(:)=varchild;
 
 disp('wspd...')
-for tindex=1:length(bulkt)
-  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'wspd',mask,tindex)
+curvar = np{'wspd'}(:);
+varchild = zeros(size(nc{'wspd'}));
+parfor tindex=1:length(bulkt)
+  varchild(tindex,:,:) = interpvar3d_par(curvar,...
+      igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,...
+      'wspd',mask,tindex);
 end
+nc{'wspd'}(:)=varchild;
 
 disp('radlw...')
-for tindex=1:length(bulkt)
-  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'radlw',mask,tindex)
+curvar = np{'radlw'}(:);
+varchild = zeros(size(nc{'radlw'}));
+parfor tindex=1:length(bulkt)
+  varchild(tindex,:,:) = interpvar3d_par(curvar,...
+      igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,...
+      'radlw',mask,tindex);
 end
+nc{'radlw'}(:)=varchild;
 
 disp('radlw_in...')
-for tindex=1:length(bulkt)
-  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'radlw_in',mask,tindex)
+curvar = np{'radlw_in'}(:);
+varchild = zeros(size(nc{'radlw_in'}));
+parfor tindex=1:length(bulkt)
+  varchild(tindex,:,:) = interpvar3d_par(curvar,...
+      igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,...
+      'radlw_in',mask,tindex);
 end
+nc{'radlw_in'}(:)=varchild;
 
 disp('radsw...')
-for tindex=1:length(bulkt)
-  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'radsw',mask,tindex)
+curvar = np{'radsw'}(:);
+varchild = zeros(size(nc{'radsw'}));
+parfor tindex=1:length(bulkt)
+  varchild(tindex,:,:) = interpvar3d_par(curvar,...
+      igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,...
+      'radsw',mask,tindex);
 end
+nc{'radsw'}(:)=varchild;
 
 disp('uwnd...')
-for tindex=1:length(bulkt)
-  interpvar3d(np,nc,igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,'uwnd',mask,tindex)
+curvar = np{'uwnd'}(:);
+varchild = zeros(size(nc{'uwnd'}));
+parfor tindex=1:length(bulkt)
+  varchild(tindex,:,:) = interpvar3d_par(curvar,...
+      igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,...
+      'uwnd',mask,tindex);
 end
+nc{'uwnd'}(:)=varchild;
 
 disp('vwnd...')
-for tindex=1:length(bulkt)
-  interpvar3d(np,nc,igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,'vwnd',mask,tindex)
+curvar = np{'vwnd'}(:);
+varchild = zeros(size(nc{'vwnd'}));
+parfor tindex=1:length(bulkt)
+  varchild(tindex,:,:) = interpvar3d_par(curvar,...
+      igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,...
+      'vwnd',mask,tindex);
 end
+nc{'vwnd'}(:)=varchild;
 
 disp('sustr...')
-for tindex=1:length(bulkt)
-  interpvar3d(np,nc,igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,'sustr',mask,tindex)
+curvar = np{'sustr'}(:);
+varchild = zeros(size(nc{'sustr'}));
+parfor tindex=1:length(bulkt)
+  varchild(tindex,:,:) = interpvar3d_par(curvar,...
+      igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,...
+      'sustr',mask,tindex);
 end
+nc{'sustr'}(:)=varchild;
 
 disp('svstr...')
-for tindex=1:length(bulkt)
-  interpvar3d(np,nc,igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,'svstr',mask,tindex)
+curvar = np{'svstr'}(:);
+varchild = zeros(size(nc{'svstr'}));
+parfor tindex=1:length(bulkt)
+  varchild(tindex,:,:) = interpvar3d_par(curvar,...
+      igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,...
+      'svstr',mask,tindex);
 end
+nc{'svstr'}(:)=varchild;
 
 result=close(np);
 result=close(nc);
