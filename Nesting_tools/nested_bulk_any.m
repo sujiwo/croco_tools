@@ -1,6 +1,5 @@
 function nested_bulk_any(child_grd,parent_grd,...
-                         parent_blk,child_blk, ...
-                         refinecoeff)
+                         parent_blk,child_blk)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  compute the bulk file of the embedded grid
@@ -69,6 +68,8 @@ else
   mask=[];
 end
 close(np);
+refinecoeff = floor(length(lon_child)/(imax-imin));
+
 %
 % Read in the parent bulk file
 %
