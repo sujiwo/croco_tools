@@ -38,8 +38,10 @@ C.indices='ijcoast.mat';
 % Read in grid coordinates at rho-points.
 %-----------------------------------------------------------------------
 
-rlon=nc_read(Gname,'lon_rho');
-rlat=nc_read(Gname,'lat_rho');
+sourcenc = netcdf(Gname);
+rlon = sourcenc{'lon_rho'}(:);
+rlat = sourcenc{'lat_rho'}(:);
+close(sourcenc);
 
 [Lp,Mp]=size(rlon);
 L=Lp-1;

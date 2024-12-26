@@ -1,4 +1,4 @@
-function [spherical,x,y,bath,rmask]=read_mask(Gname);
+function [spherical,x,y,bath,rmask]=read_mask(Gname)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Hernan G. Arango %%%%
 % Copyright (c) 2001 Rutgers University.                               %
@@ -30,26 +30,9 @@ function [spherical,x,y,bath,rmask]=read_mask(Gname);
 % Inquire about spatial dimensions.
 %-----------------------------------------------------------------------
 
-Dname.xr='xi_rho';
-Dname.yr='eta_rho';
-
-[Dnames,Dsizes]=nc_dim(Gname);
-ndims=length(Dsizes);
-for n=1:ndims,
-  dimid=n;
-  name=deblank(Dnames(n,:));
-  switch name
-    case {Dname.xr}
-      Im=Dsizes(n);
-    case {Dname.yr}
-      Jm=Dsizes(n);
-  end,
-end,
-
-%-----------------------------------------------------------------------
-% Inquire grid NetCDF file about mask variables.
-%-----------------------------------------------------------------------
-
+sourcenc = netcdf(Gname);
+Im = length( dim(sourcenc, 'xi_rho'));
+Jm = length( dim(sourcenc, 'eta_rho'));
 got.spher=0;  Vname.spher='spherical';
 got.h    =0;  Vname.h    ='h';
 got.hraw =0;  Vname.hraw ='hraw';
@@ -59,75 +42,52 @@ got.rlat =0;  Vname.rlat ='lat_rho';
 got.xr   =0;  Vname.xr   ='x_rho';
 got.yr   =0;  Vname.yr   ='y_rho';
 
-[varnam,nvars]=nc_vname(Gname);
-for n=1:nvars,
-  name=deblank(varnam(n,:));
-  switch name
-    case {Vname.spher}
-      got.spher=1;
-    case {Vname.h}
-      got.h=1;
-    case {Vname.hraw}
-      got.hraw=1;
-    case {Vname.rmask}
-      got.rmask=1;
-    case {Vname.xr}
-      got.xr=1;
-    case {Vname.yr}
-      got.yr=1;
-  end,
-end,
 
 %-----------------------------------------------------------------------
 % Read in relevant Land/Sea mask variables.
 %-----------------------------------------------------------------------
 
 % Spherical switch.
-
-spherical=0;
-if (got.spher),
-  spher=nc_read(Gname,Vname.spher);
-  if (spher == 'T' | spher == 't'),
+spherical = 0;
+if sourcenc{'spherical'}(1)=='T' | sourcenc{'spherical'}(1)=='t'
     spherical=1;
-  end,
-end,
+end
 
 % Grid positions at RHO-points.
 
-if (spherical),
-  if (got.rlon & got.rlat),
-    x=nc_read(Gname,Vname.rlon);
-    y=nc_read(Gname,Vname.rlat);
-  else,
-    [y,x]=meshgrid(1:Jm,1:Im);
-  end,
-else,
-  if (got.xr & got.yr),
-    x=nc_read(Gname,Vname.xr);
-    y=nc_read(Gname,Vname.yr);
-  else,
-    [y,x]=meshgrid(1:Jm,1:Im);
-  end,
-end,
+if (spherical)
+    try
+        x = sourcenc{Vname.rlon}(:);
+        y = sourcenc{Vname.rlat}(:);
+    catch
+        [y,x] = meshgrid(1:Jm, 1:Im);
+    end
+else
+    try
+        x = sourcenc{Vname.xr}(:);
+        y = sourcenc{Vname.yr}(:);
+    catch
+        [y,x] = meshgrid(1:Jm, 1:Im);
+    end
+end
 
 % Mask on RHO-points.
-
-if (got.rmask),
-  rmask=nc_read(Gname,Vname.rmask);
-else,
-  rmask=ones([Im Jm]);
-end,
+try
+    rmask = sourcenc{Vname.rmask}(:);
+catch
+    rmask = ones([Im Jm]);
+end
 
 % Bathymetry.
+try
+    bath = sourcenc{Vname.hraw}(1,:);
+catch
+    try
+        bath = sourcenc{Vname.h};
+    catch
+        bath = zeros([Im Jm]);
+    end
+end
 
-if (got.hraw),
-  bath=nc_read(Gname,Vname.hraw,1);
-else,
-  if (got.h),
-    bath=nc_read(Gname,Vname.h);
-  else,
-    bath=zeros([Im Jm]);
-  end,
-end,
-
+close(sourcenc);
 return
