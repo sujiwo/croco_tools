@@ -290,7 +290,7 @@ end
 % Add an extra bottom layer (-100000m) and an extra surface layer (+100m)
 % to prevent vertical extrapolations
 %
-Z=[100;Z;-100000];
+Z=[100;transp(Z);-100000];
 %
 % CROCO vertical grid
 %
