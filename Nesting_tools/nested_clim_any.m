@@ -285,6 +285,64 @@ sync(child_clim_nc);
 disp(' ')
 disp(' Do the interpolations...')
 
+disp('u...')
+for tindex=1:length(climtime)
+  disp([' Time index : ',num2str(tindex),' of ',num2str(length(climtime))])
+  interpvar4d(parent_clim_nc,child_clim_nc,igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,'u',mask,tindex,N)
+end
+disp('v...')
+for tindex=1:length(climtime)
+  disp([' Time index : ',num2str(tindex),' of ',num2str(length(climtime))])
+  interpvar4d(parent_clim_nc,child_clim_nc,igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,'v',mask,tindex,N)
+end
+disp('zeta...')
+for tindex=1:length(climtime)
+  disp([' Time index : ',num2str(tindex),' of ',num2str(length(climtime))])
+  interpvar3d(parent_clim_nc,child_clim_nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'SSH',mask,tindex)
+end
+disp('ubar...')
+for tindex=1:length(climtime)
+  disp([' Time index : ',num2str(tindex),' of ',num2str(length(climtime))])
+  interpvar3d(parent_clim_nc,child_clim_nc,igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,'ubar',mask,tindex)
+end
+disp('vbar...')
+for tindex=1:length(climtime)
+  disp([' Time index : ',num2str(tindex),' of ',num2str(length(climtime))])
+  interpvar3d(parent_clim_nc,child_clim_nc,igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,'vbar',mask,tindex)
+end
+disp('temp...')
+for tindex=1:length(climtime)
+  disp([' Time index : ',num2str(tindex),' of ',num2str(length(climtime))])
+  interpvar4d(parent_clim_nc,child_clim_nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'temp',mask,tindex,N)
+end
+disp('salt...')
+for tindex=1:length(climtime)
+  disp([' Time index : ',num2str(tindex),' of ',num2str(length(climtime))])
+  interpvar4d(parent_clim_nc,child_clim_nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'salt',mask,tindex,N)
+end
+close(parent_clim_nc);
+close(child_clim_nc);
+
+%
+%
+%  Vertical corrections
+%
+if (vertical_correc==1)
+    disp('Process variable physical variables')
+    for tindex=1:length(climtime)
+        disp([' Time index : ',num2str(tindex),' of ',num2str(length(climtime))])
+        vert_correc(child_clim,tindex,0,0,namebiol,namepisces)
+    end
+end
+
+%
+% Make a plot
+%
+disp(' ')
+disp(' Make a plot...')
+figure(1)
+plot_nestclim(child_clim,child_grd,'temp',4)
+return
 
 
 close(child_clim_nc);
