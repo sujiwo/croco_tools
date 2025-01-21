@@ -151,7 +151,7 @@ if (vertical_correc==1)
     disp('Process variable physical variables')
     for tindex=1:length(climtime)
         disp([' Time index : ',num2str(tindex),' of ',num2str(length(climtime))])
-        vert_correc(child_clim,tindex,0,0,namebiol,namepisces)
+        vert_correc(child_clim,tindex,0,0,0,0)
     end
 end
 

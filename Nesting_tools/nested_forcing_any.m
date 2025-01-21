@@ -1,4 +1,4 @@
-function nested_forcing_any(child_grd,parent_frc,child_frc)
+function nested_forcing_any(parent_grd,child_grd,parent_frc,child_frc)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  compute the forcing file of the embedded grid
@@ -35,59 +35,62 @@ title=['Forcing file for the embedded grid :',child_frc,...
 ' using parent forcing file: ',parent_frc];
 disp(' ')
 disp(title)
-%
-% Read in the embedded grid
-%
-disp(' ')
-disp(' Read in the embedded grid...')
-nc=netcdf(child_grd);
-parent_grd=nc.parent_grid(:);
-imin=nc{'grd_pos'}(1);
-imax=nc{'grd_pos'}(2);
-jmin=nc{'grd_pos'}(3);
-jmax=nc{'grd_pos'}(4);
-refinecoeff=nc{'refine_coef'}(:);
-result=close(nc);
-nc=netcdf(parent_grd);
-Lp=length(nc('xi_rho'));
-Mp=length(nc('eta_rho'));
 if extrapmask==1
-  mask=nc{'mask_rho'}(:);
+  disp('Extrapolation under mask is on')
+  disp('====================')
+end
+%
+if vertical_correc==1
+  disp('Vertical correction is on')
+  disp('===============')
+end
+
+parent_grid_nc = netcdf(parent_grd);
+child_grid_nc  = netcdf(child_grd);
+parent_frc_nc = netcdf(parent_frc);
+
+Lp=length(parent_grid_nc('xi_rho'));
+Mp=length(parent_grid_nc('eta_rho'));
+Np=length(parent_grid_nc('s_rho'));
+Lpc=length(child_grid_nc('xi_rho'));
+Mpc=length(child_grid_nc('eta_rho'));
+Npc=length(child_grid_nc('s_rho'));
+[imin,imax,jmin,jmax,refinecoeff] = detect_grid(parent_grid_nc, child_grid_nc);
+if extrapmask==1
+  mask=parent_grid_nc{'mask_rho'}(:);
 else
   mask=[];
 end
-result=close(nc);
+
 %
 % Read in the parent forcing file
 %
 disp(' ')
 disp(' Read in the parent forcing file...')
-nc = netcdf(parent_frc);
 
-smst = nc{'sms_time'}(:);
-smsc = nc{'sms_time'}.cycle_length(:);
-shft = nc{'shf_time'}(:);
-shfc = nc{'shf_time'}.cycle_length(:);
-swft = nc{'swf_time'}(:);
-swfc = nc{'swf_time'}.cycle_length(:);
-sstt = nc{'sst_time'}(:);
-sstc = nc{'sst_time'}.cycle_length(:);
-ssst = nc{'sss_time'}(:);
-sssc = nc{'sss_time'}.cycle_length(:);
-srft = nc{'srf_time'}(:);
-srfc = nc{'srf_time'}.cycle_length(:);
-tide_period = nc{'tide_period'}(:)
+smst = parent_frc_nc{'sms_time'}(:);
+smsc = parent_frc_nc{'sms_time'}.cycle_length(:);
+shft = parent_frc_nc{'shf_time'}(:);
+shfc = parent_frc_nc{'shf_time'}.cycle_length(:);
+swft = parent_frc_nc{'swf_time'}(:);
+swfc = parent_frc_nc{'swf_time'}.cycle_length(:);
+sstt = parent_frc_nc{'sst_time'}(:);
+sstc = parent_frc_nc{'sst_time'}.cycle_length(:);
+ssst = parent_frc_nc{'sss_time'}(:);
+sssc = parent_frc_nc{'sss_time'}.cycle_length(:);
+srft = parent_frc_nc{'srf_time'}(:);
+srfc = parent_frc_nc{'srf_time'}.cycle_length(:);
+tide_period = parent_frc_nc{'tide_period'}(:)
 
 %
 % Create the forcing file
 %
 disp(' ')
 disp(' Create the forcing file...')
-create_nestedforcing(nc, ...
+create_nestedforcing(parent_frc_nc, ...
                      child_frc,parent_frc,child_grd,title,smst,...
                      shft,swft,srft,sstt,ssst,smsc,...
                      shfc,swfc,srfc,sstc,sssc)
-close(nc);
 
 %
 % parent indices
@@ -152,7 +155,7 @@ for tindex=1:length(tide_period)
   interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'tide_Pphase',mask, tindex)
 end
 
-result=close(np);
+close(parent_frc_nc);
 result=close(nc);
 disp(' ')
 disp(' Done ')
