@@ -11,7 +11,7 @@
 # Getting libraries and utilities
 # -------------------------------------------------
 
-from datetime import date
+from datetime import date, timedelta
 import json
 from netCDF4 import Dataset as netcdf
 import numpy as np
@@ -67,7 +67,7 @@ for iyear in range(year_start,year_end+1):
 
         fname_in = era5_dir_raw + '/ERA5_ecmwf_' + vname.upper() + '_Y' + str(iyear) + 'M' + str(imonth).zfill(2) + '.nc'
         nc = netcdf(fname_in,'r+',format='NETCDF4')
-        time = nc.variables['time'][:]
+        time = nc.variables['valid_time'][:]
         lat = nc.variables['latitude'][:]
         lon = nc.variables['longitude'][:]
         data = nc.variables[vname][:,:,:]
@@ -96,12 +96,20 @@ for iyear in range(year_start,year_end+1):
 
 #
 # Convert time from hours since 1900-1-1 0:0:0 into days since Yorig-1-1 0:0:0
+# XXX: currently time field is seconds from 1970-1-1 0:0:0
 #
 
-        time = time / 24.
-        time = time - date.toordinal(date(Yorig,1,1)) \
-	            + date.toordinal(date(1900,1,1))
-
+        # time = time / 24.
+        # time = time - date.toordinal(date(Yorig,1,1)) \
+        #      + date.toordinal(date(1900,1,1))
+        
+        d0 = date(1970,1,1)
+        dref = date(Yorig,1,1)        
+        for d in range(len(time)):
+            dx = timedelta(seconds=float(time[d]))
+            dcur = d0 + dx
+            realdelta = dcur - dref
+            time[d] = realdelta.days
 #
 # Changes names
 #
