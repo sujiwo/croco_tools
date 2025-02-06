@@ -212,7 +212,7 @@ for Y=Ymin:Ymax
         % %
         if makefrc==1 && add_tides==1
              add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
-                            Yorig,Y,M,coastfileplot)
+                            Yorig,Y,M,coastfileplot,0,1,sal_tides,salname)
         end
         %
         %
