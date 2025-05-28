@@ -50,7 +50,7 @@ else
 end
 
 % Choose the monthly runoff forcing time and cycle in days
-clim_run=1;
+clim_run=0;
 
 if (clim_run == 1)
     qbar_time=[15:30:345]; 
@@ -72,7 +72,7 @@ end
 %=========================================================================================
 % Choose if you process variable tracer concentration(temp, salt, NO3, ...)
 
-psource_ncfile_ts=1;
+psource_ncfile_ts=0;
 
 if psource_ncfile_ts
     psource_ncfile_ts_auto=1 ;
