@@ -5,14 +5,6 @@ import rasterio.plot
 from copy import copy
 
 
-glosrcname = 'DATA/glofas_merged_NATUNA.nc'
-crocdstname = 'CROCO_FILES/croco_runoff_test.nc'
-gridname = 'CROCO_FILES/croco_grd.nc'
-
-glosrc = nc4.Dataset(glosrcname)
-grid = nc4.Dataset(gridname)
-
-
 class CGrid:
     def __init__(self, grPath):
         self.fd = nc4.Dataset(grPath)
@@ -22,6 +14,8 @@ class CGrid:
         self.longitudes_u = np.array( self.fd['lon_u'][0,:] )
         self.latitudes_r = np.array( self.fd['lat_rho'][:,0] )
         self.longitudes_r = np.array( self.fd['lon_rho'][0,:] )
+        self.latitudes_p = np.array( self.fd['lat_psi'][:,0] )
+        self.longitudes_p = np.array( self.fd['lon_psi'][0,:] )
         
         # build rio data for mask_rho
         self.transform_r = rio.transform.from_origin(
@@ -31,30 +25,68 @@ class CGrid:
             ysize=self.latitudes_r[1]-self.latitudes_r[0]
             )
         self.mask_r = np.array(np.flipud(self.fd['mask_rho']), dtype=bool)
+        self.mask_u = np.array(np.flipud(self.fd['mask_u']), dtype=bool)
+        self.mask_v = np.array(np.flipud(self.fd['mask_v']), dtype=bool)
+        self.mask_p = np.array(np.flipud(self.fd['mask_psi']), dtype=bool)
         self.bathy = np.flipud(self.fd['h'])
         
     def plot_mask_rho(self):
         rasterio.plot.show(self.mask_r, transform=self.transform_r)
         
-    def where(self, lat, lon):
-        xd = np.searchsorted(self.longitudes_r, lon)
-        yd = np.searchsorted(self.latitudes_r, lat)
+    def _select_table(self, kind):
+        match kind:
+            case 'rho':
+                lon_tg = self.longitudes_r
+                lat_tg = self.latitudes_r
+                table = self.mask_r
+            case 'psi':
+                lon_tg = self.longitudes_p
+                lat_tg = self.latitudes_p
+                table = self.mask_psi
+            case 'u':
+                lon_tg = self.longitudes_u
+                lat_tg = self.latitudes_u
+                table = self.mask_u
+            case 'v':
+                lon_tg = self.longitudes_v
+                lat_tg = self.latitudes_v
+                table = self.mask_v
+            case _:
+                raise ValueError("Unknown kind")
+        return (lat_tg, lon_tg, table)
+
+    def where(self, lat, lon, kind='rho'):
+        lat_tg, lon_tg, _ = self._select_table(kind)
+        xd = np.searchsorted(lon_tg, lon)
+        yd = np.searchsorted(lat_tg, lat)
         return (xd,yd)
+    
+    def query(self, lat, lon, kind='rho'):
+        lat_tg, lon_tg, table = self._select_table(kind)
+        xd = np.searchsorted(lon_tg, lon)
+        yd = np.searchsorted(lat_tg, lat)
+        return table[yd, xd]
+
+# glosrcname = 'DATA/glofas_merged_NATUNA.nc'
+# crocdstname = 'CROCO_FILES/croco_runoff_test.nc'
+# gridname = 'CROCO_FILES/croco_grd.nc'
+
+# glosrc = nc4.Dataset(glosrcname)
+# grid = nc4.Dataset(gridname)
 
 
+# discharges = glosrc['dis24'][0,:,:]
+# print("There are {} suspected river(s)".format(discharges.count()))
+# coordshapes = discharges.shape
+# truerivers = []
 
-discharges = glosrc['dis24'][0,:,:]
-print("There are {} suspected river(s)".format(discharges.count()))
-coordshapes = discharges.shape
-truerivers = []
-
-xc = 0
-latitudes_v = grid['lat_v'][:,0]
-longitudes_v = grid['lon_v'][0,:]
-latitudes_u = grid['lat_u'][:,0]
-longitudes_u = grid['lon_u'][0,:]
-latitudes_r = grid['lat_rho'][:,0]
-longitudes_r = grid['lon_rho'][0,:]
+# xc = 0
+# latitudes_v = grid['lat_v'][:,0]
+# longitudes_v = grid['lon_v'][0,:]
+# latitudes_u = grid['lat_u'][:,0]
+# longitudes_u = grid['lon_u'][0,:]
+# latitudes_r = grid['lat_rho'][:,0]
+# longitudes_r = grid['lon_rho'][0,:]
 
 # for j in range(coordshapes[0]):
 #     for i in range(coordshapes[1]):
