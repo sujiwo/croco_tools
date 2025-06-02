@@ -4,7 +4,8 @@ import rasterio as rio
 import rasterio.plot
 from copy import copy
 import warnings
-
+import matplotlib.patches as mpatches
+from matplotlib.pyplot import get_cmap, legend
 
 class Glofass:
     def __init__(self, glPath):
@@ -59,14 +60,48 @@ class CGrid:
             xsize=self.longitudes_r[1]-self.longitudes_r[0],
             ysize=self.latitudes_r[1]-self.latitudes_r[0]
             )
-        self.mask_r = np.array(np.flipud(self.fd['mask_rho']), dtype=bool)
-        self.mask_u = np.array(np.flipud(self.fd['mask_u']), dtype=bool)
-        self.mask_v = np.array(np.flipud(self.fd['mask_v']), dtype=bool)
-        self.mask_p = np.array(np.flipud(self.fd['mask_psi']), dtype=bool)
-        self.bathy = np.flipud(self.fd['h'])
+        
+        # Mask Notes: False==Land, True==Sea
+        self.mask_r = np.array(self.fd['mask_rho'][:], dtype=bool)
+        self.mask_u = np.array(self.fd['mask_u'][:], dtype=bool)
+        self.mask_v = np.array(self.fd['mask_v'][:], dtype=bool)
+        self.mask_p = np.array(self.fd['mask_psi'][:], dtype=bool)
+        self.bathy = np.array(self.fd['h'])
+        
+    def get_mask(self, kind='rho'):
+        match kind:
+            case 'rho':
+                table = self.mask_r
+            case 'psi':
+                table = self.mask_psi
+            case 'u':
+                table = self.mask_u
+            case 'v':
+                table = self.mask_v
+            case _:
+                raise ValueError("Unknown kind")
+        return np.flipud(table)
+
+    def get_lon_limit(self):
+        lonmin = max(self.longitudes_p[0], self.longitudes_r[0],
+                     self.longitudes_u[0], self.longitudes_v[0])
+        lonmax = min(self.longitudes_p[-1], self.longitudes_r[-1],
+                     self.longitudes_u[-1], self.longitudes_v[-1])
+        return lonmin, lonmax
+    
+    def get_lat_limit(self):
+        latmin = max(self.latitudes_p[0], self.latitudes_r[0],
+                     self.latitudes_u[0], self.latitudes_v[0])
+        latmax = min(self.latitudes_p[-1], self.latitudes_r[-1],
+                     self.latitudes_u[-1], self.latitudes_v[-1])
+        return latmin, latmax
         
     def plot_mask_rho(self):
-        rasterio.plot.show(self.mask_r, transform=self.transform_r)
+        rasterio.plot.show(np.flipud(self.mask_r), transform=self.transform_r)
+        cmap = get_cmap()
+        patches = [mpatches.Patch(color=cmap(0.0), label="Land"),
+                   mpatches.Patch(color=cmap(1.0), label="Sea")]
+        legend(handles=patches)
         
     def _select_table(self, kind):
         match kind:
@@ -92,15 +127,15 @@ class CGrid:
 
     def where(self, lat, lon, kind='rho'):
         lat_tg, lon_tg, _ = self._select_table(kind)
-        xd = np.searchsorted(lon_tg, lon)
-        yd = np.searchsorted(lat_tg, lat, side='right')
-        return (xd,yd)
+        lon_num = np.searchsorted(lon_tg, lon)
+        lat_num = np.searchsorted(lat_tg, lat)
+        return (lon_num,lat_num)
     
     def query(self, lat, lon, kind='rho'):
         lat_tg, lon_tg, table = self._select_table(kind)
-        xd = np.searchsorted(lon_tg, lon)
-        yd = np.searchsorted(lat_tg, lat, side='right')
-        return table[yd, xd]
+        lonnum = np.searchsorted(lon_tg, lon)
+        latnum = np.searchsorted(lat_tg, lat)
+        return table[latnum, lonnum]
 
 def convert_glofass2croco(glosrc_, crocogrd_):
     glofd = nc4.Dataset(glosrc_)
@@ -113,19 +148,14 @@ def convert_glofass2croco(glosrc_, crocogrd_):
         glofd['longitude'][-1] > cgrid.longitudes_r[-1]:
             warnings.warn("Glofass longitude is outside grid range")
 
-    discharges = glofd['dis24'][0,:,:]
-    coordshapes = discharges.shape
-    truerivers = []
-    for lat_n in range(coordshapes[0]):
-        for lon_n in range(coordshapes[1]):
-            if discharges.mask[lat_n, lon_n]==True:
-                continue
-            latitude = float(glofd['latitude'][lat_n])
-            longitude = float(glofd['longitude'][lon_n])
-            # Find position in domain grid
-            lon_rg, lat_rg = cgrid.where(latitude, longitude)
-            # if cgrid.mask_r[lat_rg, lon_rg]==False:
-            pass
+    glofd.filter_rivers(cgrid.latitudes_r[0], cgrid.latitudes_r[-1],
+                        cgrid.longitudes_r[0], cgrid.longitudes_r[-1])
+    # P = []
+    # for R in glofd.truerivers:
+    #     xr, yr = cgrid.where(R['lat'], R['lon'], kind='rho')
+    #     if cgrid.mask_r[yr,xr]==False and \
+    #         cgrid.mask_u[yr,xr]==False:
+    #         pass
 
 
 if __name__=='__main__':
@@ -135,44 +165,32 @@ if __name__=='__main__':
 
     cgrid = CGrid(gridname)
     glo = Glofass((glosrcname))
-    glo.filter_rivers(cgrid.latitudes_r[0], cgrid.latitudes_r[-1], 
-                      cgrid.longitudes_r[0], cgrid.longitudes_r[-1])
+    lonmin,lonmax = cgrid.get_lon_limit()
+    latmin,latmax = cgrid.get_lat_limit()
+    glo.filter_rivers(latmin, latmax, lonmin, lonmax)
 
-    # convert_glofass2croco(glosrcname, gridname)
-    pass
-# glosrc = nc4.Dataset(glosrcname)
-# grid = nc4.Dataset(gridname)
-
-
-# discharges = glosrc['dis24'][0,:,:]
-# print("There are {} suspected river(s)".format(discharges.count()))
-# coordshapes = discharges.shape
-# truerivers = []
-
-# xc = 0
-# latitudes_v = grid['lat_v'][:,0]
-# longitudes_v = grid['lon_v'][0,:]
-# latitudes_u = grid['lat_u'][:,0]
-# longitudes_u = grid['lon_u'][0,:]
-# latitudes_r = grid['lat_rho'][:,0]
-# longitudes_r = grid['lon_rho'][0,:]
-
-# for j in range(coordshapes[0]):
-#     for i in range(coordshapes[1]):
-#         if discharges.mask[j,i]==True:
-#             continue
-#         latitude = float(glosrc['latitude'][j])
-#         longitude = float(glosrc['longitude'][i])
-#         # Find position in domain grid
-#         ri = np.searchsorted(longitudes_r, longitude)
-#         rj = np.searchsorted(latitudes_r, latitude)
-#         if grid['mask_rho'][rj,ri]==0 and \
-#            grid['mask_v'][rj,ri]==0 and \
-#            grid['mask_v'][rj+1,ri]==0 and \
-#            grid['mask_u'][rj,ri]==0 and \
-#            grid['mask_u'][rj,ri+1]==0:
-#                print('In sea: ({},{})'.format(i,j))
+    P = []
+    for R in glo.truerivers:
+        lon_num, lat_num = cgrid.where(R['lat'], R['lon'], kind='rho')
+        if lat_num>=cgrid.mask_u.shape[0]-1 or \
+            lat_num>=cgrid.mask_v.shape[0]-1:
+                continue
+        if lon_num>=cgrid.mask_u.shape[1]-1 or \
+            lon_num>=cgrid.mask_v.shape[1]-1:
+                continue
+        if cgrid.mask_r[lat_num,lon_num]==False and \
+            cgrid.mask_u[lat_num,lon_num]==False and \
+            cgrid.mask_u[lat_num,lon_num+1]==False and \
+            cgrid.mask_v[lat_num,lon_num]==False and \
+            cgrid.mask_v[lat_num+1,lon_num]==False:
+            continue
+        if cgrid.mask_r[lat_num,lon_num]==True and \
+            cgrid.mask_u[lat_num,lon_num]==True and \
+            cgrid.mask_u[lat_num,lon_num+1]==True and \
+            cgrid.mask_v[lat_num,lon_num]==True and \
+            cgrid.mask_v[lat_num+1,lon_num]==True:
+            continue
         
+        P.append(R)
 
-#glosrc.close()
-#grid.close()
+    pass
