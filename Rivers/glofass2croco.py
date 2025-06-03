@@ -25,7 +25,7 @@ class Glofass:
                 longitude = float(self.fd['longitude'][lon_n])
                 self.truerivers.append({'lat':latitude, 
                     'lon':longitude, 
-                    'index': (lat_n,lon_n)}
+                    'gindex': (lat_n,lon_n)}
                 )
 
     def filter_rivers(self, lat_min, lat_max, lon_min, lon_max):
@@ -39,6 +39,27 @@ class Glofass:
         self.longitude = self.longitude[
             (self.longitude>=lon_min) & (self.longitude<=lon_max)
             ]
+
+
+class CrocoRunoff:
+    def __init__(self, roPath):
+        pass
+    
+    @staticmethod
+    def create(runoffPath):
+        fd = nc4.Dataset(runoffPath, mode='w')
+        fd.createDimension('qbar_time')
+        fd.createDimension('n_qbar')
+        fd.createDimension('one', 1)
+        fd.createDimension('two', 2)
+        
+        qb=fd.createVariable('qbar_time', 'f8', dimensions=('qbar_time'))
+        qb.long_name = 'runoff time'
+        qb.units = 'days'
+        qb.cycle_length = 365.25
+        
+        fd.close()
+        
 
 
 class CGrid:
@@ -162,6 +183,7 @@ if __name__=='__main__':
     glosrcname = '/home/sujiwo/Data/Natuna/DATA/glofas_merged_NATUNA.nc'
     crocdstname = '/home/sujiwo/Data/Natuna/CROCO_FILES/croco_runoff_test.nc'
     gridname = '/home/sujiwo/Data/Natuna/CROCO_FILES/croco_grd.nc'
+    dischargeCutOff = 7.5
 
     cgrid = CGrid(gridname)
     glo = Glofass((glosrcname))
@@ -190,6 +212,20 @@ if __name__=='__main__':
             cgrid.mask_v[lat_num,lon_num]==True and \
             cgrid.mask_v[lat_num+1,lon_num]==True:
             continue
+        
+        # Replace latitude using rho points
+        R['lat'] = cgrid.latitudes_r[lat_num]
+        R['lon'] = cgrid.longitudes_r[lon_num]
+        glat = R['gindex'][0]
+        glon = R['gindex'][1]
+        # Collect flows, filter those with average discharge below cutoff
+        flow = glo.fd['dis24'][:,glat,glon]
+        flowAvg = np.average(flow)
+        R['disAvg'] = flowAvg
+        if flowAvg < dischargeCutOff:
+            continue
+        
+        # Find position in grid and 
         
         P.append(R)
 
