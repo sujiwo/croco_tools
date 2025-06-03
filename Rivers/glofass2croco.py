@@ -225,7 +225,27 @@ if __name__=='__main__':
         if flowAvg < dischargeCutOff:
             continue
         
-        # Find position in grid and 
+        # Find position and direction in grid
+        # if mask change is in U axis => zonal
+        # if mask change is in V axis => meridional
+        if cgrid.mask_u[lat_num,lon_num]!= \
+            cgrid.mask_u[lat_num,lon_num+1]:
+                R['type']='U'
+                if cgrid.mask_u[lat_num,lon_num]==False:
+                    # Left-to-right
+                    R['dir']=1
+                else:
+                    # Right-to-left
+                    R['dir']=0
+        elif cgrid.mask_v[lat_num,lon_num]!= \
+            cgrid.mask_v[lat_num+1,lon_num]:
+                R['type']='V'
+                if cgrid.mask_v[lat_num,lon_num]==False:
+                    # Bottom-to-top
+                    R['dir']=1
+                else:
+                    # Top-to-bottom
+                    R['dir']=0
         
         P.append(R)
 
