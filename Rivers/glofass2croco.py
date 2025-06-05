@@ -34,6 +34,9 @@ class CrocoRunoff:
         __.long_name = 'runoff discharge'
         __.units = 'm3.s-1'
         
+        __=fd.createVariable('runoff_position', 'f8', dimensions=('n_qbar', 'two'))
+        __.long_name = 'position of the runoff (by line) in the CROCO grid'
+        
         fd.close()
         return CrocoRunoff(runoffPath, mode='a')
 
@@ -198,9 +201,10 @@ class Glofass:
             # Find position and direction in grid
             # if mask change is in U axis => zonal
             # if mask change is in V axis => meridional
+            # U & V numbers use Fortran convention (ie. start from 1)
             if cgrid.mask_u[lat_num,lon_num]!= \
                 cgrid.mask_u[lat_num,lon_num+1]:
-                    R['type']='U'
+                    R['type']=0     # for U
                     if cgrid.mask_u[lat_num,lon_num]==False:
                         # Left-to-right
                         R['dir']=1
@@ -213,7 +217,7 @@ class Glofass:
                         R['lon_num']=lon_num+1+1
             elif cgrid.mask_v[lat_num,lon_num]!= \
                 cgrid.mask_v[lat_num+1,lon_num]:
-                    R['type']='V'
+                    R['type']=1     # for V
                     if cgrid.mask_v[lat_num,lon_num]==False:
                         # Bottom-to-top
                         R['dir']=1
@@ -244,20 +248,28 @@ class Glofass:
         
         # Create croco runoff file
         croco_runoff = CrocoRunoff.create(crocoRunoffPath)
+        croco_runoff.fd['qbar_time'][:] = self.valid_times
         Qbar = np.zeros((len(self.truerivers), len(self.valid_times)))
+        runoff_position = np.zeros((len(self.truerivers),2))
         for i in range(len(self.truerivers)):
             R = self.truerivers[i]
             cur_flows = self.fd['dis24'][:,R['gindex'][0],R['gindex'][1]]
             Qbar[i] = cur_flows
+            runoff_position[i] = [R['lat_num'], R['lon_num']]
         croco_runoff.fd['Qbar'][:] = Qbar
+        croco_runoff.fd['runoff_position'][:] = runoff_position
 
-        
-        # Filter
-        
-        # Write times
-        
-        # ...
-        pass
+        # Position and direction MUST be written manually in croco.in
+        print("Put these lines into croco.in:")
+        print("CROCO_FILES/croco_runoff.nc")
+        print("{}".format(len(self.truerivers)))
+        for R in self.truerivers:
+            print("  {} {} {} {} F F ".
+                  format(R['lon_num'], 
+                         R['lat_num'],
+                         R['type'],
+                         R['dir']))
+
 
 
 if __name__=='__main__':
