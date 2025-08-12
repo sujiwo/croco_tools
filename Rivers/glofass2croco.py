@@ -5,15 +5,58 @@ import rasterio as rio
 import rasterio.plot
 import matplotlib.patches as mpatches
 from matplotlib.pyplot import get_cmap, legend
+import pandas as pd
+from datetime import datetime
 
 
 
 class CrocoRunoff:
-    def __init__(self, roPath, mode='r'):
+    def __init__(self, roPath, mode='r', cgrd=None):
         self.fd = nc4.Dataset(roPath, mode)
+        self.grid = cgrd
+        
+    def set_grid(self, grd):
+        self.grid = grd
         
     def __del__(self):
         self.fd.close()
+        
+    def queryRiver(self, longitude, latitude):
+        assert(self.grid!=None)
+        lon_num, lat_num = self.grid.where(
+            latitude, 
+            longitude, 
+            kind='rho')
+        if self.grid.mask_u[lat_num,lon_num]!= \
+            self.grid.mask_u[lat_num,lon_num+1]:
+                Rtype=0     # for U
+                if self.grid.mask_u[lat_num,lon_num]==False:
+                    # Left-to-right
+                    Rdir=1
+                    Rlat_num=lat_num+1
+                    Rlon_num=lon_num+1
+                else:
+                    # Right-to-left
+                    Rdir=-1
+                    Rlat_num=lat_num+1
+                    Rlon_num=lon_num+1+1
+        elif self.grid.mask_v[lat_num,lon_num]!= \
+            self.grid.mask_v[lat_num+1,lon_num]:
+                Rtype=1     # for V
+                if self.grid.mask_v[lat_num,lon_num]==False:
+                    # Bottom-to-top
+                    Rdir=1
+                    Rlat_num=lat_num+1
+                    Rlon_num=lon_num+1
+                else:
+                    # Top-to-bottom
+                    Rdir=-1
+                    Rlat_num=lat_num+1+1
+                    Rlon_num=lon_num+1
+        else:
+            raise ValueError("Invalid river position")
+        return Rtype, Rdir, Rlon_num, Rlat_num
+
     
     @staticmethod
     def create(runoffPath):
@@ -40,6 +83,36 @@ class CrocoRunoff:
         fd.close()
         return CrocoRunoff(runoffPath, mode='a')
 
+    def fillFromCsv(self, csvPath):
+        #Identify rivers
+        csvd = pd.read_csv(csvPath).sort_values(by='ID')
+        csvd.Date = pd.Series([ datetime.fromisoformat(d) for d in csvd.Date ])
+        river_ids = csvd.ID.unique()
+        river_pos = []
+        for r in river_ids:
+            lon = csvd[csvd.ID==r].Longitude.iloc[0]
+            lat = csvd[csvd.ID==r].Latitude.iloc[0]
+            river_pos.append({'longitude': lon, 'latitude': lat})
+        
+        # Fill quantities in netcdf
+        self.fd['qbar_time'][:] = np.array( 
+            [d.timestamp() 
+             for d in 
+             csvd[csvd.ID==river_ids[0]].Date] )
+        Qbar = np.zeros((len(river_ids), len(csvd[csvd.ID==river_ids[0]])))
+        for r in range(len(river_ids)):
+            Qbar[r,:] = csvd[csvd.ID==river_ids[r]].MeanDischarge
+        self.fd['Qbar'][:] = Qbar
+        
+        # print out values for croco.in
+        for i in range(len(river_ids)):
+            r = river_ids[i]
+            print("River {}: " % r)
+            Rtype,Rdir,Rlonn,Rlatn = self.queryRiver(river_pos[i]['longitude'], river_pos[i]['latitude'])
+            print("Type:{}, dir:{}".format(Rtype, Rdir))
+            
+
+        
 
 class CGrid:
     def __init__(self, grPath):
@@ -273,13 +346,13 @@ class Glofass:
 
 
 if __name__=='__main__':
-    glosrcname = '/home/sujiwo/Data/Natuna/DATA/glofas_merged_NATUNA.nc'
-    crocdstname = '/home/sujiwo/Data/Natuna/CROCO_FILES/croco_runoff_test.nc'
-    gridname = '/home/sujiwo/Data/Natuna/CROCO_FILES/croco_grd.nc'
-    dischargeCutOff = 100.0
+    # glosrcname = '/home/sujiwo/Data/Natuna/DATA/glofas_merged_NATUNA.nc'
+    # crocdstname = '/home/sujiwo/Data/Natuna/CROCO_FILES/croco_runoff_test.nc'
+    # gridname = '/home/sujiwo/Data/Natuna/CROCO_FILES/croco_grd.nc'
+    # dischargeCutOff = 100.0
 
-    cgrid = CGrid(gridname)
-    glo = Glofass((glosrcname))
-    glo.convert_croco(cgrid, crocdstname)
+    # cgrid = CGrid(gridname)
+    # glo = Glofass((glosrcname))
+    # glo.convert_croco(cgrid, crocdstname)
 
     pass
