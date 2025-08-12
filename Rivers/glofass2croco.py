@@ -259,12 +259,12 @@ class Glofass:
         croco_runoff.fd['Qbar'][:] = Qbar
         croco_runoff.fd['runoff_position'][:] = runoff_position
 
-        # Position and direction MUST be written manually in croco.in
+        # Position and direction MUST be copied manually in croco.in
         print("Put these lines into croco.in:")
         print("CROCO_FILES/croco_runoff.nc")
         print("{}".format(len(self.truerivers)))
         for R in self.truerivers:
-            print("  {} {} {} {} F F ".
+            print("  {} {} {} {} F 20 15 ".
                   format(R['lon_num'], 
                          R['lat_num'],
                          R['type'],
@@ -276,7 +276,7 @@ if __name__=='__main__':
     glosrcname = '/home/sujiwo/Data/Natuna/DATA/glofas_merged_NATUNA.nc'
     crocdstname = '/home/sujiwo/Data/Natuna/CROCO_FILES/croco_runoff_test.nc'
     gridname = '/home/sujiwo/Data/Natuna/CROCO_FILES/croco_grd.nc'
-    dischargeCutOff = 1.0
+    dischargeCutOff = 100.0
 
     cgrid = CGrid(gridname)
     glo = Glofass((glosrcname))
